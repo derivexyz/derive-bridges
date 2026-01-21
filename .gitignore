@@ -45,6 +45,10 @@ target/
 test-ledger/
 .anchor/
 
+# Foundry
+lib/
+broadcast/
+
 # Temporary files
 *.tmp
 *.temp

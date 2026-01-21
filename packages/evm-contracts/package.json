@@ -1,47 +1,25 @@
 {
   "name": "@drv-bridges/evm-contracts",
   "version": "1.0.0",
-  "description": "EVM and TRON smart contracts for OFT bridge",
-  "main": "index.js",
+  "description": "EVM and TRON smart contracts for OFT bridge using Foundry",
   "scripts": {
-    "build": "hardhat compile",
-    "test": "hardhat test",
-    "lint": "solhint 'contracts/**/*.sol'",
-    "clean": "hardhat clean && rm -rf artifacts cache typechain-types",
-    "coverage": "hardhat coverage"
+    "build": "forge build",
+    "test": "forge test",
+    "test:verbose": "forge test -vvv",
+    "test:gas": "forge test --gas-report",
+    "coverage": "forge coverage",
+    "clean": "forge clean",
+    "fmt": "forge fmt",
+    "snapshot": "forge snapshot"
   },
   "keywords": [
     "oft",
     "bridge",
     "evm",
     "tron",
-    "solidity"
+    "solidity",
+    "foundry"
   ],
   "author": "Derive XYZ",
-  "license": "MIT",
-  "devDependencies": {
-    "@nomicfoundation/hardhat-chai-matchers": "^2.0.3",
-    "@nomicfoundation/hardhat-ethers": "^3.0.5",
-    "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "@nomicfoundation/hardhat-verify": "^2.0.3",
-    "@typechain/ethers-v6": "^0.5.1",
-    "@typechain/hardhat": "^9.1.0",
-    "@types/chai": "^4.3.11",
-    "@types/mocha": "^10.0.6",
-    "@types/node": "^20.10.6",
-    "chai": "^4.3.10",
-    "ethers": "^6.9.2",
-    "hardhat": "^2.19.4",
-    "hardhat-gas-reporter": "^1.0.9",
-    "solhint": "^4.1.1",
-    "solidity-coverage": "^0.8.5",
-    "ts-node": "^10.9.2",
-    "typechain": "^8.3.2",
-    "typescript": "^5.3.3"
-  },
-  "dependencies": {
-    "@openzeppelin/contracts": "^5.0.1",
-    "@openzeppelin/contracts-upgradeable": "^5.0.1"
-  }
+  "license": "MIT"
 }
