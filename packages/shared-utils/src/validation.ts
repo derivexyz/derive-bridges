@@ -17,7 +17,8 @@ export function isValidEvmAddress(address: string): boolean {
 
 /**
  * Validate Solana address (simplified)
- * In production, use @solana/web3.js PublicKey.isOnCurve
+ * TODO: In production, use @solana/web3.js PublicKey.isOnCurve for proper validation
+ * This is a basic regex-based validation and should not be used in production
  */
 export function isValidSolanaAddress(address: string): boolean {
   // Basic validation: Solana addresses are base58 encoded and typically 32-44 chars

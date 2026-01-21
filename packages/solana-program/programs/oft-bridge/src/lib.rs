@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Burn, Mint, Token, TokenAccount, Transfer};
+use anchor_spl::token::{self, Burn, Mint, MintTo, Token, TokenAccount};
 
 declare_id!("BridgeXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 
@@ -108,7 +108,7 @@ pub mod oft_bridge {
         ];
         let signer = &[&authority_seeds[..]];
 
-        let cpi_accounts = token::MintTo {
+        let cpi_accounts = MintTo {
             mint: ctx.accounts.token_mint.to_account_info(),
             to: ctx.accounts.recipient_token_account.to_account_info(),
             authority: ctx.accounts.bridge_authority.to_account_info(),

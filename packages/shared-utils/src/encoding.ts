@@ -70,9 +70,8 @@ export function encodeAddress(address: string, chainType: 'evm' | 'solana'): Uin
     // EVM addresses are 20 bytes
     return ethers.getBytes(address);
   } else {
-    // Solana addresses are 32 bytes (base58 decoded)
-    // In production, use @solana/web3.js PublicKey
-    return new Uint8Array(32); // Placeholder
+    // TODO: Implement proper Solana address encoding using @solana/web3.js PublicKey
+    throw new Error('Solana address encoding not yet implemented. Use @solana/web3.js PublicKey in production.');
   }
 }
 
@@ -84,9 +83,8 @@ export function decodeAddress(bytes: Uint8Array, chainType: 'evm' | 'solana'): s
     // Convert bytes to hex address
     return ethers.hexlify(bytes.slice(0, 20));
   } else {
-    // Convert to base58 for Solana
-    // In production, use @solana/web3.js PublicKey
-    return 'Solana_Address_Placeholder';
+    // TODO: Implement proper Solana address decoding using @solana/web3.js PublicKey
+    throw new Error('Solana address decoding not yet implemented. Use @solana/web3.js PublicKey in production.');
   }
 }
 
