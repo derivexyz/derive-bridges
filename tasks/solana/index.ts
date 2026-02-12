@@ -142,7 +142,8 @@ export const saveSolanaDeployment = (
  * @returns The contents of the OFT.json file as a JSON object.
  */
 export const getSolanaDeployment = (
-    eid: EndpointId
+    eid: EndpointId,
+    token: string,
 ): {
     programId: string
     mint: string
@@ -154,7 +155,7 @@ export const getSolanaDeployment = (
         throw new Error('eid is required')
     }
     const outputDir = path.join('deployments', endpointIdToNetwork(eid))
-    const filePath = path.join(outputDir, 'OFT.json') // Note: if you have multiple deployments, change this filename to refer to the desired deployment file
+    const filePath = path.join(outputDir, `${token}_OFT.json`) // Note: if you have multiple deployments, change this filename to refer to the desired deployment file
 
     if (!existsSync(filePath)) {
         DebugLogger.printWarning(KnownWarnings.SOLANA_DEPLOYMENT_NOT_FOUND)
@@ -170,13 +171,13 @@ export const getSolanaDeployment = (
  * Logs a warning if the deployment file is missing or malformed,
  * and returns null so consumers can decide how to proceed.
  */
-export const getOftStoreAddress = (eid: EndpointId): string | null => {
+export const getOftStoreAddress = (eid: EndpointId, token: string): string | null => {
     try {
-        const { oftStore } = getSolanaDeployment(eid)
+        const { oftStore } = getSolanaDeployment(eid, token)
         if (!oftStore) {
             DebugLogger.printWarning(
                 KnownWarnings.SOLANA_DEPLOYMENT_MISSING_OFT_STORE,
-                `deployment file for ${endpointIdToNetwork(eid)} (eid ${eid}) missing 'oftStore' field.`
+                `deployment file for ${endpointIdToNetwork(eid)} (eid ${eid}, token ${token}) missing 'oftStore' field.`
             )
             return null
         }
@@ -184,7 +185,7 @@ export const getOftStoreAddress = (eid: EndpointId): string | null => {
     } catch (err: any) {
         DebugLogger.printWarning(
             KnownWarnings.ERROR_LOADING_SOLANA_DEPLOYMENT,
-            `Could not load Solana deployment for ${endpointIdToNetwork(eid)} (eid ${eid}): ${err.message}`
+            `Could not load Solana deployment for ${endpointIdToNetwork(eid)} (eid ${eid}, token ${token}): ${err.message}`
         )
         return null
     }
