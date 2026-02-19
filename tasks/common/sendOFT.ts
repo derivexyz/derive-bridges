@@ -14,6 +14,8 @@ interface MasterArgs {
     dstEid: number
     amount: string
     to: string
+    /** The token name (e.g., 'JITOSOL', 'SOL') - required to identify which OFT deployment to use */
+    token: string
     /** Minimum amount to receive in case of custom slippage or fees (human readable units, e.g. "1.5") */
     minAmount?: string
     /** Extra options for sending additional gas units to lzReceive, lzCompose, or receiver address */
@@ -34,6 +36,7 @@ task('lz:oft:send', 'Sends OFT tokens cross‐chain from any supported chain')
     .addParam('dstEid', 'Destination endpoint ID', undefined, types.int)
     .addParam('amount', 'Amount to send (human readable units, e.g. "1.5")', undefined, types.string)
     .addParam('to', 'Base58 recipient (Solana) or bytes20-encoded target (EVM)', undefined, types.string)
+    .addParam('token', 'Token name (e.g., JITOSOL, SOL)', undefined, types.string)
     .addOptionalParam(
         'minAmount',
         'Minimum amount to receive in case of custom slippage or fees (human readable units, e.g. "1.5")',

@@ -56,12 +56,25 @@ export async function getBlockExplorerLink(srcEid: number, txHash: string): Prom
 
 export const createSdkFactory = (
     userAccount: PublicKey,
-    programId: PublicKey,
+    programIdOrMap: PublicKey | Map<string, PublicKey>,
     connectionFactory = createSolanaConnectionFactory()
 ) => {
     // To create a EVM/Solana SDK factory we need to merge the EVM and the Solana factories into one
     const evmSdkFactory = createOAppFactory(createConnectedContractFactory())
     const aptosSdkFactory = createAptosOAppFactory()
+
+    // Create a program ID factory that can handle multiple programIds
+    const programIdFactory = (point: OmniPoint): PublicKey => {
+        if (programIdOrMap instanceof Map) {
+            const programId = programIdOrMap.get(point.address)
+            if (!programId) {
+                throw new Error(`No programId found for address ${point.address}`)
+            }
+            return programId
+        }
+        return programIdOrMap
+    }
+
     const solanaSdkFactory = createOFTFactory(
         // The first parameter to createOFTFactory is a user account factory
         //
@@ -75,11 +88,9 @@ export const createSdkFactory = (
         // This is a function that receives an OmniPoint ({ eid, address } object)
         // and returns a program ID to be used with that SDK.
         //
-        // Since we only have one OFT deployed, this will always be the program ID passed as a CLI parameter.
-        //
-        // In situations where we might have multiple configs with OFTs using multiple program IDs,
-        // this function needs to decide which one to use.
-        () => programId,
+        // When a Map is provided, we look up the programId by the contract address.
+        // When a single PublicKey is provided, we use it for all contracts.
+        programIdFactory,
         // Last but not least the SDK will require a connection
         connectionFactory
     )

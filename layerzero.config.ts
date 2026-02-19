@@ -1,38 +1,72 @@
 import { EndpointId } from '@layerzerolabs/lz-definitions'
-import { generateConnectionsConfig } from '@layerzerolabs/metadata-tools'
+import { TwoWayConfig, generateConnectionsConfig } from '@layerzerolabs/metadata-tools'
 import { OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 
 import { EVM_ENFORCED_OPTIONS, SOLANA_ENFORCED_OPTIONS } from './tasks/common/constants'
 import { getOftStoreAddress } from './tasks/solana'
 
-const arbitrumContract: OmniPointHardhat = {
-    eid: EndpointId.ARBSEP_V2_TESTNET,
-    contractName: 'DeriveOFTReceiver',
+const Contracts: { [token: string]: { [network: string]: OmniPointHardhat } } = {
+    JITOSOL: {
+        derive: {
+            eid: EndpointId.LYRA_V2_MAINNET,
+            contractName: 'JITOSOL_DeriveOFTReceiver',
+        },
+        solana: {
+            eid: EndpointId.SOLANA_V2_MAINNET,
+            address: getOftStoreAddress(EndpointId.SOLANA_V2_MAINNET, 'JITOSOL'),
+        },
+    },
+    SOL: {
+        derive: {
+            eid: EndpointId.LYRA_V2_MAINNET,
+            contractName: 'SOL_DeriveOFTReceiver',
+        },
+        solana: {
+            eid: EndpointId.SOLANA_V2_MAINNET,
+            address: getOftStoreAddress(EndpointId.SOLANA_V2_MAINNET, 'SOL'),
+        },
+    },
 }
 
-const solanaContract: OmniPointHardhat = {
-    eid: EndpointId.SOLANA_V2_TESTNET,
-    address: getOftStoreAddress(EndpointId.SOLANA_V2_TESTNET, 'JITOSOL'),
-}
-
-
-// Learn about Message Execution Options: https://docs.layerzero.network/v2/developers/solana/oft/overview#message-execution-options
-// Learn more about the Simple Config Generator - https://docs.layerzero.network/v2/developers/evm/technical-reference/simple-config
-export default async function () {
-    // note: pathways declared here are automatically bidirectional
-    // if you declare A,B there's no need to declare B,A
-    const connections = await generateConnectionsConfig([
+const Connections: { [token: string]: TwoWayConfig[] } = {
+    JITOSOL: [
         [
-            arbitrumContract, // Chain A contract
-            solanaContract, // Chain B contract
+            Contracts.JITOSOL.derive,
+            Contracts.JITOSOL.solana,
             [['LayerZero Labs'], []], // [ requiredDVN[], [ optionalDVN[], threshold ] ]
-            [15, 32], // [A to B confirmations, B to A confirmations]
-            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS], // Chain B enforcedOptions, Chain A enforcedOptions
+            [15, 32], // [dest to src confirmations, src to dest confirmations]
+            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS], // dest enforcedOptions, src enforcedOptions
         ],
-    ])
+    ],
+    SOL: [
+        [
+            Contracts.SOL.derive,
+            Contracts.SOL.solana,
+            [['LayerZero Labs'], []], // [ requiredDVN[], [ optionalDVN[], threshold ] ]
+            [15, 32], // [dest to src confirmations, src to dest confirmations]
+            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS], // dest enforcedOptions, src enforcedOptions
+        ],
+    ],
+}
+
+export default async function () {
+    const configs: TwoWayConfig[] = []
+
+    for (const token of Object.keys(Connections)) {
+        configs.push(...Connections[token])
+    }
+
+    const contractsFlat: { contract: OmniPointHardhat }[] = Object.values(Contracts).reduce(
+        (res, networkContracts) => {
+            return [...res, ...Object.values(networkContracts).map((x) => ({ contract: x }))]
+        },
+        [] as { contract: OmniPointHardhat }[]
+    )
+
+    const connections = await generateConnectionsConfig(configs)
 
     return {
-        contracts: [{ contract: arbitrumContract }, { contract: solanaContract }],
+        contracts: contractsFlat,
         connections,
     }
 }

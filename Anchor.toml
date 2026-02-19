@@ -6,7 +6,7 @@ resolution = false
 skip-lint = false
 
 [programs.localnet]
-oft = "Fa6DraHHVBwjUY61mo4K7p7zL1CPyEv3kLif3yE9xahK"
+oft = "46KaqgEC2gkZPQaZF1x71z8G2SiAGyezZ5aTu1dr4tYf"
 
 [registry]
 url = "https://api.apr.dev"

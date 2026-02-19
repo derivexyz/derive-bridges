@@ -8,7 +8,6 @@ import { createGetHreByEid } from '@layerzerolabs/devtools-evm-hardhat'
 import { createLogger, promptToContinue } from '@layerzerolabs/io-devtools'
 import { ChainType, endpointIdToChainType, endpointIdToNetwork } from '@layerzerolabs/lz-definitions'
 
-import layerzeroConfig from '../../layerzero.config'
 import { SendResult } from '../common/types'
 import { DebugLogger, KnownErrors, MSG_TYPE, isEmptyOptionsEvm } from '../common/utils'
 import { getLayerZeroScanLink } from '../solana'
@@ -18,13 +17,14 @@ export interface EvmArgs {
     dstEid: number
     amount: string
     to: string
+    token: string
     minAmount?: string
     extraOptions?: string
     composeMsg?: string
     oftAddress?: string
 }
 export async function sendEvm(
-    { srcEid, dstEid, amount, to, minAmount, extraOptions, composeMsg, oftAddress }: EvmArgs,
+    { srcEid, dstEid, amount, to, token, minAmount, extraOptions, composeMsg, oftAddress }: EvmArgs,
     hre: HardhatRuntimeEnvironment
 ): Promise<SendResult> {
     if (endpointIdToChainType(srcEid) !== ChainType.EVM) {
@@ -47,12 +47,14 @@ export async function sendEvm(
     if (oftAddress) {
         wrapperAddress = oftAddress
     } else {
-        const { contracts } = typeof layerzeroConfig === 'function' ? await layerzeroConfig() : layerzeroConfig
-        const wrapper = contracts.find((c) => c.contract.eid === srcEid)
-        if (!wrapper) throw new Error(`No config for EID ${srcEid}`)
-        wrapperAddress = wrapper.contract.contractName
-            ? (await srcEidHre.deployments.get(wrapper.contract.contractName)).address
-            : wrapper.contract.address!
+        // Use the token name to find the deployment contract (e.g., JITOSOL_DeriveOFTReceiver)
+        const contractName = `${token}_DeriveOFTReceiver`
+        try {
+            const deployment = await srcEidHre.deployments.get(contractName)
+            wrapperAddress = deployment.address
+        } catch (error) {
+            throw new Error(`No deployment found for contract ${contractName} on EID ${srcEid}`)
+        }
     }
     // 2️⃣ load OFT ABI
     const oftArtifact = await srcEidHre.artifacts.readArtifact('OFT')

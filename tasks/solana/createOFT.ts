@@ -41,6 +41,11 @@ const DEFAULT_LOCAL_DECIMALS = 9
 
 interface CreateOFTTaskArgs {
     /**
+     * The token name used for the deployment file (e.g., JITOSOL, SOL).
+     */
+    token: string
+
+    /**
      * The initial supply to mint on solana.
      */
     amount: number
@@ -132,6 +137,7 @@ interface CreateOFTTaskArgs {
 // * Set the mint authority to the multisig account. If not in only OFT Store mode, also set the freeze authority to the multisig account.
 // Note:  Only supports SPL Token Standard.
 task('lz:oft:solana:create', 'Mints new SPL Token and creates new OFT Store account')
+    .addParam('token', 'Token name for deployment file (e.g., JITOSOL, SOL)')
     .addOptionalParam('amount', 'The initial supply to mint on solana', undefined, devtoolsTypes.int)
     .addParam('eid', 'Solana mainnet (30168) or testnet (40168)', undefined, devtoolsTypes.eid)
     .addOptionalParam('localDecimals', 'Token local decimals (default=9)', DEFAULT_LOCAL_DECIMALS, devtoolsTypes.int)
@@ -167,6 +173,7 @@ task('lz:oft:solana:create', 'Mints new SPL Token and creates new OFT Store acco
     .addFlag('ci', 'Continue without confirmation')
     .setAction(
         async ({
+            token,
             amount,
             eid,
             localDecimals: decimals,
@@ -390,6 +397,7 @@ task('lz:oft:solana:create', 'Mints new SPL Token and creates new OFT Store acco
             }
             saveSolanaDeployment(
                 eid,
+                token,
                 programIdStr,
                 mint.publicKey,
                 mintAuthorityPublicKey.toBase58(),

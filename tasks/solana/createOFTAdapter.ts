@@ -27,6 +27,11 @@ interface CreateOFTAdapterTaskArgs {
     eid: EndpointId
 
     /**
+     * The token name (e.g., 'JITOSOL', 'SOL').
+     */
+    token: string
+
+    /**
      * The token mint public key.
      */
     mint: string
@@ -46,6 +51,7 @@ interface CreateOFTAdapterTaskArgs {
 
 // Define a Hardhat task for creating OFTAdapter on Solana
 task('lz:oft-adapter:solana:create', 'Creates new OFT Adapter (OFT Store PDA)')
+    .addParam('token', 'The token name (e.g., JITOSOL, SOL)')
     .addParam('mint', 'The Token Mint public key')
     .addParam('programId', 'The OFT program ID')
     .addParam('eid', 'Solana mainnet (30168) or testnet (40168)', undefined, devtoolsTypes.eid)
@@ -54,6 +60,7 @@ task('lz:oft-adapter:solana:create', 'Creates new OFT Adapter (OFT Store PDA)')
     .setAction(
         async ({
             eid,
+            token,
             mint: mintStr,
             programId: programIdStr,
             tokenProgram: tokenProgramStr,
@@ -108,6 +115,7 @@ task('lz:oft-adapter:solana:create', 'Creates new OFT Adapter (OFT Store PDA)')
 
             saveSolanaDeployment(
                 eid,
+                token,
                 programIdStr,
                 mint,
                 mintAuthority ? mintAuthority.toBase58() : '',

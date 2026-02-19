@@ -2,9 +2,11 @@ import { Umi, publicKey } from '@metaplex-foundation/umi'
 import { toWeb3JsPublicKey } from '@metaplex-foundation/umi-web3js-adapters'
 import { Connection, PublicKey } from '@solana/web3.js'
 import * as multisig from '@sqds/multisig'
+import { existsSync, readdirSync } from 'fs'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import path from 'path'
 
-import { ChainType, EndpointId, endpointIdToChainType } from '@layerzerolabs/lz-definitions'
+import { ChainType, EndpointId, endpointIdToChainType, endpointIdToNetwork } from '@layerzerolabs/lz-definitions'
 import { EndpointPDADeriver, EndpointProgram } from '@layerzerolabs/lz-solana-sdk-v2'
 import { oft } from '@layerzerolabs/oft-v2-solana-sdk'
 import { OAppOmniGraph } from '@layerzerolabs/ua-devtools'
@@ -54,6 +56,78 @@ export const findSolanaEndpointIdInGraph = async (
     }
 
     throw new Error('No Solana Endpoint ID found. Ensure your OApp configuration includes a valid Solana endpoint.')
+}
+
+/**
+ * Extract all unique Solana OFT store addresses from the graph.
+ * Returns a map of OFT store address to token name.
+ */
+export const findAllSolanaContractsInGraph = async (
+    hre: HardhatRuntimeEnvironment,
+    oappConfig: string
+): Promise<Map<string, { eid: EndpointId; address: string }>> => {
+    if (!oappConfig) throw new Error('Missing oappConfig')
+
+    let graph: OAppOmniGraph
+    try {
+        graph = await hre.run(SUBTASK_LZ_OAPP_CONFIG_LOAD, {
+            configPath: oappConfig,
+            schema: OAppOmniGraphHardhatSchema,
+            task: TASK_LZ_OAPP_CONFIG_GET,
+        } satisfies SubtaskLoadConfigTaskArgs)
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(`Failed to load OApp configuration: ${error.message}`)
+        } else {
+            throw new Error('Failed to load OApp configuration: Unknown error')
+        }
+    }
+
+    const solanaContracts = new Map<string, { eid: EndpointId; address: string }>()
+
+    for (const { point } of graph.contracts) {
+        if (endpointIdToChainType(point.eid) === ChainType.SOLANA && point.address) {
+            solanaContracts.set(point.address, { eid: point.eid, address: point.address })
+        }
+    }
+
+    return solanaContracts
+}
+
+/**
+ * Load all Solana deployments from disk for a given endpoint.
+ * Returns a map of OFT store address -> { programId, token }
+ */
+export const loadAllSolanaDeployments = (
+    eid: EndpointId
+): Map<string, { programId: string; token: string }> => {
+    const outputDir = path.join('deployments', endpointIdToNetwork(eid))
+    const deployments = new Map<string, { programId: string; token: string }>()
+
+    if (!existsSync(outputDir)) {
+        return deployments
+    }
+
+    const files = readdirSync(outputDir)
+    for (const file of files) {
+        // Match files like JITOSOL_OFT.json, SOL_OFT.json
+        const match = file.match(/^(.+)_OFT\.json$/)
+        if (match) {
+            const token = match[1]
+            const filePath = path.join(outputDir, file)
+            try {
+                const { readFileSync } = require('fs')
+                const content = JSON.parse(readFileSync(filePath, 'utf-8'))
+                if (content.oftStore && content.programId) {
+                    deployments.set(content.oftStore, { programId: content.programId, token })
+                }
+            } catch (e) {
+                // Skip invalid files
+            }
+        }
+    }
+
+    return deployments
 }
 
 /**

@@ -16,8 +16,8 @@ import {
 } from '@layerzerolabs/ua-devtools-evm-hardhat'
 
 import { createAptosSignerFactory } from '../aptos'
-import { deriveConnection, getSolanaDeployment, useWeb3Js } from '../solana'
-import { findSolanaEndpointIdInGraph, validateSigningAuthority } from '../solana/utils'
+import { deriveConnection, useWeb3Js } from '../solana'
+import { findSolanaEndpointIdInGraph, loadAllSolanaDeployments, validateSigningAuthority } from '../solana/utils'
 
 import { publicKey as publicKeyType } from './types'
 import {
@@ -76,27 +76,35 @@ task(TASK_LZ_OAPP_WIRE)
         const userAccount = keypair.publicKey
 
         const solanaEid = await findSolanaEndpointIdInGraph(hre, args.oappConfig)
-        const solanaDeployment = getSolanaDeployment(solanaEid)
 
-        // alert the user if the signing authority is not the admin / delegate
-        const { umi, connection } = await deriveConnection(solanaEid, true)
-        const { warnings } = await validateSigningAuthority(
-            umi,
-            connection,
-            solanaDeployment.oftStore,
-            userAccount,
-            args.multisigKey
-        )
-        warnings.forEach((w) => logger.warn(w))
-
-        // Then we grab the programId from the args
-        const programId = new PublicKey(solanaDeployment.programId)
-
-        // TODO: refactor to instead use a function such as verifySolanaDeployment that also checks for oftStore key
-        if (!programId) {
-            logger.error('Missing programId in solana deployment')
+        // Load all Solana deployments for this endpoint and build a programId map
+        const solanaDeployments = loadAllSolanaDeployments(solanaEid)
+        if (solanaDeployments.size === 0) {
+            logger.error(`No Solana deployments found for ${solanaEid}`)
             return
         }
+
+        // Build a map of OFT store address -> programId
+        const programIdMap = new Map<string, PublicKey>()
+        for (const [oftStore, { programId }] of solanaDeployments) {
+            programIdMap.set(oftStore, new PublicKey(programId))
+        }
+
+        logger.info(`Found ${solanaDeployments.size} Solana deployment(s)`)
+
+        // alert the user if the signing authority is not the admin / delegate for any deployment
+        const { umi, connection } = await deriveConnection(solanaEid, true)
+        for (const [oftStore, { token }] of solanaDeployments) {
+            const { warnings } = await validateSigningAuthority(
+                umi,
+                connection,
+                oftStore,
+                userAccount,
+                args.multisigKey
+            )
+            warnings.forEach((w) => logger.warn(`[${token}] ${w}`))
+        }
+
         const configurator = args.internalConfigurator
 
         //
@@ -112,7 +120,7 @@ task(TASK_LZ_OAPP_WIRE)
         const connectionFactory = createSolanaConnectionFactory()
 
         // We'll need SDKs to be able to use devtools
-        const sdkFactory = createSdkFactory(userAccount, programId, connectionFactory)
+        const sdkFactory = createSdkFactory(userAccount, programIdMap, connectionFactory)
 
         // We'll also need a signer factory
         const solanaSignerFactory = createSolanaSignerFactory(keypair, connectionFactory, args.multisigKey)

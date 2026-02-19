@@ -101,6 +101,7 @@ export const deriveKeys = (programIdStr: string) => {
 /**
  * Outputs the OFT accounts to a JSON file.
  * @param eid {EndpointId}
+ * @param token {string} - Token name (e.g., 'JITOSOL', 'SOL')
  * @param programId {string}
  * @param mint {string}
  * @param mintAuthority {string}
@@ -109,6 +110,7 @@ export const deriveKeys = (programIdStr: string) => {
  */
 export const saveSolanaDeployment = (
     eid: EndpointId,
+    token: string,
     programId: string,
     mint: string,
     mintAuthority: string,
@@ -119,8 +121,9 @@ export const saveSolanaDeployment = (
     if (!existsSync(outputDir)) {
         mkdirSync(outputDir, { recursive: true })
     }
+    const filePath = `${outputDir}/${token}_OFT.json`
     writeFileSync(
-        `${outputDir}/OFT.json`,
+        filePath,
         JSON.stringify(
             {
                 programId,
@@ -133,7 +136,7 @@ export const saveSolanaDeployment = (
             4
         )
     )
-    console.log(`Accounts have been saved to ${outputDir}/OFT.json`)
+    console.log(`Accounts have been saved to ${filePath}`)
 }
 
 /**

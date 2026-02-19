@@ -31,6 +31,7 @@ export interface SolanaArgs {
     to: string
     srcEid: EndpointId
     dstEid: EndpointId
+    token: string
     minAmount?: string
     extraOptions?: string
     composeMsg?: string
@@ -46,6 +47,7 @@ export async function sendSolana({
     to,
     srcEid,
     dstEid,
+    token,
     oftAddress,
     oftProgramId,
     tokenProgram: tokenProgramStr,
@@ -64,7 +66,7 @@ export async function sendSolana({
         : publicKey(
               (() => {
                   try {
-                      return getSolanaDeployment(srcEid).programId
+                      return getSolanaDeployment(srcEid, token).programId
                   } catch (error) {
                       logger.error(`No Program ID found for ${srcEid}: ${error}`)
                       throw error
@@ -73,7 +75,7 @@ export async function sendSolana({
           )
 
     // 3️⃣ Decide your store PDA (override or from your on‐disk deployment)
-    const storePda = oftAddress ? publicKey(oftAddress) : publicKey(getSolanaDeployment(srcEid).oftStore)
+    const storePda = oftAddress ? publicKey(oftAddress) : publicKey(getSolanaDeployment(srcEid, token).oftStore)
     const oftStoreInfo = await oft.accounts.fetchOFTStore(umi, storePda)
     const mintPk = new PublicKey(oftStoreInfo.tokenMint)
     const escrowPk = new PublicKey(oftStoreInfo.tokenEscrow)

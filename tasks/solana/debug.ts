@@ -41,8 +41,17 @@ const DEBUG_ACTIONS = {
  * Get the OFTStore account from the task arguments, the deployment file, or throw an error.
  * @param {EndpointId} eid
  * @param {string} oftStore
+ * @param {string} token
  */
-const getOftStore = (eid: EndpointId, oftStore?: string) => publicKey(oftStore ?? getSolanaDeployment(eid).oftStore)
+const getOftStore = (eid: EndpointId, oftStore?: string, token?: string) => {
+    if (oftStore) {
+        return publicKey(oftStore)
+    }
+    if (!token) {
+        throw new Error('Either oftStore or token must be provided')
+    }
+    return publicKey(getSolanaDeployment(eid, token).oftStore)
+}
 
 function getChainKeyForEid(metadata: IMetadata, eid: number): string {
     const eidStr = String(eid)
@@ -83,6 +92,7 @@ function tokenProgramAddressToType(tokenProgramAddress: string | PublicKey): Sol
 type DebugTaskArgs = {
     eid: EndpointId
     oftStore?: string
+    token?: string
     endpoint: string
     dstEids: EndpointId[]
     action?: string
@@ -102,6 +112,12 @@ task('lz:oft:solana:debug', 'Manages OFTStore and OAppRegistry information')
         types.string,
         true
     )
+    .addOptionalParam(
+        'token',
+        'Token name (e.g., JITOSOL, SOL). Required if oftStore is not provided.',
+        undefined,
+        types.string
+    )
     .addParam('endpoint', 'The Endpoint public key', EndpointProgram.PROGRAM_ID.toBase58(), types.string)
     .addOptionalParam('dstEids', 'Destination eids to check (comma-separated list)', [], types.csv)
     .addOptionalParam(
@@ -111,9 +127,9 @@ task('lz:oft:solana:debug', 'Manages OFTStore and OAppRegistry information')
         types.string
     )
     .setAction(async (taskArgs: DebugTaskArgs) => {
-        const { eid, oftStore: oftStoreArg, endpoint, dstEids, action } = taskArgs
+        const { eid, oftStore: oftStoreArg, token, endpoint, dstEids, action } = taskArgs
         const { umi, connection } = await deriveConnection(eid, true)
-        const oftStore = getOftStore(eid, oftStoreArg)
+        const oftStore = getOftStore(eid, oftStoreArg, token)
         const metadata = await defaultFetchMetadata()
         const sourceChainKey = getChainKeyForEid(metadata, eid)
 
