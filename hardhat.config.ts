@@ -24,6 +24,7 @@ import { HardhatUserConfig, HttpNetworkAccountsUserConfig } from 'hardhat/types'
 
 import { EndpointId } from '@layerzerolabs/lz-definitions'
 
+import './type-extensions'
 import './tasks/index'
 
 // Set your preferred authentication method
@@ -66,15 +67,63 @@ const config: HardhatUserConfig = {
         ],
     },
     networks: {
-        'arbitrum-sepolia': {
-            eid: EndpointId.ARBSEP_V2_TESTNET,
-            url: process.env.RPC_URL_ARB_SEPOLIA || 'https://arbitrum-sepolia.gateway.tenderly.co',
+        // Hub: every token is represented on Ethereum L1.
+        'ethereum-mainnet': {
+            eid: EndpointId.ETHEREUM_V2_MAINNET,
+            url: process.env.RPC_URL_ETHEREUM || 'https://ethereum-rpc.publicnode.com',
             accounts,
+            verify: { etherscan: { apiUrl: 'https://eth.blockscout.com/api' } },
         },
-        'derive-testnet': {
-            eid: EndpointId.LYRA_V2_TESTNET,
-            url: process.env.RPC_URL_DERIVE_TESTNET || 'https://testnet-rpc.derive.xyz',
+        'sepolia-testnet': {
+            eid: EndpointId.SEPOLIA_V2_TESTNET,
+            url: process.env.RPC_URL_SEPOLIA || 'https://sepolia.gateway.tenderly.co',
             accounts,
+            verify: { etherscan: { apiUrl: 'https://eth-sepolia.blockscout.com/api' } },
+        },
+        // fXRP's home chain.
+        'flare-mainnet': {
+            eid: EndpointId.FLARE_V2_MAINNET,
+            url: process.env.RPC_URL_FLARE || 'https://flare-api.flare.network/ext/C/rpc',
+            accounts,
+            oftAdapter: {
+                tokenAddress: process.env.FXRP_FLARE_MAINNET || '0xAd552A648C74D49E10027AB8a618A3ad4901c5bE',
+                deploymentName: 'FXRP_Adapter',
+            },
+            verify: { etherscan: { apiUrl: 'https://flare-explorer.flare.network/api' } },
+        },
+        'flare-testnet': {
+            eid: EndpointId.FLARE_V2_TESTNET,
+            url: process.env.RPC_URL_FLARE_TESTNET || 'https://coston2-api.flare.network/ext/C/rpc',
+            accounts,
+            oftAdapter: {
+                // TODO fill in FXRP on Coston2; the deploy skips while this is empty.
+                tokenAddress: process.env.FXRP_FLARE_TESTNET || '',
+                deploymentName: 'FXRP_Adapter',
+            },
+            verify: { etherscan: { apiUrl: 'https://coston2-explorer.flare.network/api' } },
+        },
+        // HYPE and kHYPE's home chain. Deploys here need big blocks, handled in the deploy scripts.
+        // No `verify` block: hyperevmscan.io serves only the Etherscan V2 API, which hardhat-deploy's
+        // V1-style etherscan-verify cannot drive. Verify these two through the explorer's web UI.
+        'hyperevm-mainnet': {
+            eid: EndpointId.HYPERLIQUID_V2_MAINNET,
+            url: process.env.RPC_URL_HYPEREVM || 'https://rpc.hyperliquid.xyz/evm',
+            accounts,
+            oftAdapter: {
+                // TODO fill in kHYPE on HyperEVM; the deploy skips while this is empty.
+                tokenAddress: process.env.KHYPE_HYPEREVM_MAINNET || '',
+                deploymentName: 'KHYPE_Adapter',
+            },
+        },
+        'hyperevm-testnet': {
+            eid: EndpointId.HYPERLIQUID_V2_TESTNET,
+            url: process.env.RPC_URL_HYPEREVM_TESTNET || 'https://rpc.hyperliquid-testnet.xyz/evm',
+            accounts,
+            oftAdapter: {
+                // TODO fill in kHYPE on HyperEVM testnet; the deploy skips while this is empty.
+                tokenAddress: process.env.KHYPE_HYPEREVM_TESTNET || '',
+                deploymentName: 'KHYPE_Adapter',
+            },
         },
         hardhat: {
             // Need this for testing because TestHelperOz5.sol is exceeding the compiled contract size limit
