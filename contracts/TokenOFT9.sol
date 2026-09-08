@@ -8,8 +8,23 @@ import { OFTUpgradeable } from "@layerzerolabs/oft-evm-upgradeable/contracts/oft
 /// @dev Must stay pure: OFTUpgradeable reads `decimals()` while constructing, to fix
 ///      `decimalConversionRate`.
 contract TokenOFT9 is OFTUpgradeable {
+    bool public seeded;
+
+    event Seeded(address indexed to, uint256 amount);
+
+    error AlreadySeeded();
+
     constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
         _disableInitializers();
+    }
+
+    /// @notice Mints, once, the supply that already exists on the chain this OFT replaces.
+    function seed(address _to, uint256 _amount) external onlyOwner {
+        if (seeded) revert AlreadySeeded();
+        seeded = true;
+
+        _mint(_to, _amount);
+        emit Seeded(_to, _amount);
     }
 
     function initialize(
