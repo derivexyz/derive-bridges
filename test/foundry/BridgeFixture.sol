@@ -12,7 +12,7 @@ import { TokenOFT18 } from "../../contracts/TokenOFT18.sol";
 import { TokenOFT6 } from "../../contracts/TokenOFT6.sol";
 import { TokenOFT9 } from "../../contracts/TokenOFT9.sol";
 import { TokenOFTAdapter } from "../../contracts/TokenOFTAdapter.sol";
-import { TokenMock } from "../mocks/TokenMock.sol";
+import { StandInToken } from "../../contracts/testnet/StandInToken.sol";
 
 /// @notice Stands up one pathway of the real mesh: a hub OFT that mints against an escrow held by an
 ///         adapter on the token's home chain.
@@ -33,8 +33,8 @@ abstract contract BridgeFixture is TestHelperOz5 {
     ///        property these tests exist to hold.
     function _deployPair(
         uint8 _decimals
-    ) internal returns (IOFT hub, TokenOFTAdapter adapter, TokenMock token) {
-        token = new TokenMock("Home Token", "HOME", _decimals);
+    ) internal returns (IOFT hub, TokenOFTAdapter adapter, StandInToken token) {
+        token = new StandInToken("Home Token", "HOME", _decimals);
 
         address hubImpl;
         if (_decimals == 18) {

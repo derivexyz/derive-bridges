@@ -6,13 +6,17 @@ import {
     deployProxyAdmin,
     saveCombinedDeployment,
 } from '@layerzerolabs/devtools-evm-hardhat'
+import { EndpointId } from '@layerzerolabs/lz-definitions'
 
 import { withBigBlock } from '../utils/hyperliquidBlocks'
+
+import { STAND_INS } from './StandInToken'
 
 const contractName = 'TokenOFTAdapter'
 
 /// Escrows the token on its home chain: fXRP on Flare, kHYPE on HyperEVM. Which token, and under
-/// what deployment name, comes from `oftAdapter` in the network config.
+/// what deployment name, comes from `oftAdapter` in the network config. Where a chain has no real
+/// token to escrow, the stand-in deployed alongside stands in for it.
 const deploy: DeployFunction = async (hre) => {
     const { deployer } = await hre.getNamedAccounts()
 
@@ -21,15 +25,23 @@ const deploy: DeployFunction = async (hre) => {
         console.log(`No oftAdapter configured for ${hre.network.name}, skipping ${contractName}`)
         return
     }
-    if (!adapter.tokenAddress) {
-        console.warn(`oftAdapter.tokenAddress is unset for ${hre.network.name}, skipping ${contractName}`)
+
+    const eid = hre.network.config.eid as EndpointId
+    const standIn = STAND_INS[eid]
+    const tokenAddress =
+        adapter.tokenAddress || (standIn && (await hre.deployments.getOrNull(standIn.deployment))?.address)
+
+    if (!tokenAddress) {
+        console.warn(
+            `No token to escrow on ${hre.network.name}: set oftAdapter.tokenAddress, or add a stand-in. Skipping ${contractName}.`
+        )
         return
     }
 
     const { address: endpointAddress } = await hre.deployments.get('EndpointV2')
 
     console.log(`Deploying ${adapter.deploymentName} on ${hre.network.name} with ${deployer}`)
-    console.log(`Escrowing token ${adapter.tokenAddress}`)
+    console.log(`Escrowing token ${tokenAddress}${adapter.tokenAddress ? '' : ' (stand-in)'}`)
 
     const { address: proxyAdminAddress } = await deployProxyAdmin({
         hre,
@@ -47,7 +59,7 @@ const deploy: DeployFunction = async (hre) => {
             hre,
             deployOptions: {
                 from: deployer,
-                args: [adapter.tokenAddress, endpointAddress],
+                args: [tokenAddress, endpointAddress],
                 skipIfAlreadyDeployed: true,
                 contract: contractName,
             },
@@ -69,5 +81,7 @@ const deploy: DeployFunction = async (hre) => {
 }
 
 deploy.tags = [contractName]
+// The stand-in has to exist before this can escrow it.
+deploy.dependencies = ['StandInToken']
 
 export default deploy

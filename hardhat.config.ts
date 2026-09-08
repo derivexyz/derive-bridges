@@ -96,8 +96,9 @@ const config: HardhatUserConfig = {
             url: process.env.RPC_URL_FLARE_TESTNET || 'https://coston2-api.flare.network/ext/C/rpc',
             accounts,
             oftAdapter: {
-                // TODO fill in FXRP on Coston2; the deploy skips while this is empty.
-                tokenAddress: process.env.FXRP_FLARE_TESTNET || '',
+                // FTestXRP, 6 decimals. Resolved from FlareContractRegistry ->
+                // AssetManagerFXRP.fAsset(), since Flare publishes no static address.
+                tokenAddress: process.env.FXRP_FLARE_TESTNET || '0x0b6A3645c240605887a5532109323A3E12273dc7',
                 deploymentName: 'FXRP_Adapter',
             },
             verify: { etherscan: { apiUrl: 'https://coston2-explorer.flare.network/api' } },

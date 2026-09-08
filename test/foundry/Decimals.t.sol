@@ -8,7 +8,7 @@ import { IOFT, SendParam, MessagingFee } from "@layerzerolabs/oft-evm/contracts/
 
 import { BridgeFixture } from "./BridgeFixture.sol";
 import { TokenOFTAdapter } from "../../contracts/TokenOFTAdapter.sol";
-import { TokenMock } from "../mocks/TokenMock.sol";
+import { StandInToken } from "../../contracts/testnet/StandInToken.sol";
 
 /// @notice The hub mints at its home chain's decimals rather than defaulting to 18. Nothing reverts if
 ///         that is wrong - the token is simply misdenominated by orders of magnitude - so these are the
@@ -26,7 +26,7 @@ contract DecimalsTest is BridgeFixture {
     /// decimals; a hub left at 18 against a 6-decimal home would still round-trip, so comparing the
     /// raw integers is what actually catches the mistake.
     function _assertOneTokenCrossesIntact(uint8 _decimals) private {
-        (IOFT hub, TokenOFTAdapter adapter, TokenMock token) = _deployPair(_decimals);
+        (IOFT hub, TokenOFTAdapter adapter, StandInToken token) = _deployPair(_decimals);
 
         uint256 one = 10 ** _decimals;
         token.mint(alice, one);
@@ -62,7 +62,7 @@ contract DecimalsTest is BridgeFixture {
     /// property the whole bridge rests on, and the one worth monitoring in production.
     function testFuzz_escrowMatchesHubSupply(uint96 _rawAmount, uint8 _pick) public {
         uint8 decimals = [uint8(18), 9, 6][_pick % 3];
-        (IOFT hub, TokenOFTAdapter adapter, TokenMock token) = _deployPair(decimals);
+        (IOFT hub, TokenOFTAdapter adapter, StandInToken token) = _deployPair(decimals);
 
         uint256 amount = bound(uint256(_rawAmount), 1, _sharedDecimalsCeiling(decimals));
         token.mint(alice, amount);
@@ -93,7 +93,7 @@ contract DecimalsTest is BridgeFixture {
     /// caps one transfer at ~18.4 trillion tokens, far above any of the five supplies here, but it is
     /// the constraint that would bite if sharedDecimals were ever raised.
     function test_amountAboveSharedDecimalsCeiling_reverts() public {
-        (, TokenOFTAdapter adapter, TokenMock token) = _deployPair(9);
+        (, TokenOFTAdapter adapter, StandInToken token) = _deployPair(9);
 
         uint256 amount = _sharedDecimalsCeiling(9) + 1e3;
         token.mint(alice, amount);
@@ -110,7 +110,7 @@ contract DecimalsTest is BridgeFixture {
     /// Amounts finer than sharedDecimals cannot cross. They must stay with the sender rather than being
     /// escrowed and silently dropped.
     function test_dustBelowSharedDecimals_staysWithSender() public {
-        (IOFT hub, TokenOFTAdapter adapter, TokenMock token) = _deployPair(18);
+        (IOFT hub, TokenOFTAdapter adapter, StandInToken token) = _deployPair(18);
 
         // sharedDecimals is 6, so at 18 local decimals anything under 1e12 is dust.
         uint256 amount = 1e18 + 999;

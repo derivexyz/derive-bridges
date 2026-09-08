@@ -8,7 +8,7 @@ import { IOFT, SendParam, MessagingFee } from "@layerzerolabs/oft-evm/contracts/
 import { BridgeFixture } from "./BridgeFixture.sol";
 import { NativeTokenOFTAdapter } from "../../contracts/NativeTokenOFTAdapter.sol";
 import { TokenOFTAdapter } from "../../contracts/TokenOFTAdapter.sol";
-import { TokenMock } from "../mocks/TokenMock.sol";
+import { StandInToken } from "../../contracts/testnet/StandInToken.sol";
 
 /// @notice Recipient whose bookkeeping on receipt costs more than a bare transfer, as a Safe or vault's
 ///         would. Five cold storage writes put it comfortably past 80,000.
@@ -41,7 +41,7 @@ contract EnforcedGasTest is BridgeFixture {
     }
 
     function test_hubMint_fitsEnforcedGas() public {
-        (IOFT hub, TokenOFTAdapter adapter, TokenMock token) = _deployPair(18);
+        (IOFT hub, TokenOFTAdapter adapter, StandInToken token) = _deployPair(18);
 
         uint256 amount = 1e18;
         token.mint(alice, amount);
@@ -60,7 +60,7 @@ contract EnforcedGasTest is BridgeFixture {
     }
 
     function test_escrowRelease_fitsEnforcedGas() public {
-        (IOFT hub, TokenOFTAdapter adapter, TokenMock token) = _deployPair(18);
+        (IOFT hub, TokenOFTAdapter adapter, StandInToken token) = _deployPair(18);
 
         uint256 amount = 1e18;
         token.mint(alice, amount);
