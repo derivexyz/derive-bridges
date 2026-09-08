@@ -10,12 +10,16 @@ import { EndpointId } from '@layerzerolabs/lz-definitions'
 
 /// Ethereum L1 is the hub: every token is represented here, escrowed by an adapter on its home
 /// chain. Decimals must match that home chain, which is what picks the contract.
-/// TODO confirm name and symbol for each with product before mainnet.
+///
+/// Name and symbol mirror the token being represented, read off the live contracts. SOL and jitoSOL
+/// follow the Derive representations they replace rather than Solana's own metadata, so the seed mint
+/// lands in existing holders' wallets under the name they already hold. Written once by
+/// `__OFT_init` - an upgrade will not change them.
 export const HUB_TOKENS = [
     { deployment: 'HYPE', contract: 'TokenOFT18', name: 'HYPE', symbol: 'HYPE' },
     { deployment: 'KHYPE', contract: 'TokenOFT18', name: 'Kinetiq Staked HYPE', symbol: 'kHYPE' },
-    { deployment: 'SOL', contract: 'TokenOFT9', name: 'Wrapped SOL', symbol: 'wSOL' },
-    { deployment: 'JITOSOL', contract: 'TokenOFT9', name: 'Jito Staked SOL', symbol: 'jitoSOL' },
+    { deployment: 'SOL', contract: 'TokenOFT9', name: 'wSOL', symbol: 'wSOL' },
+    { deployment: 'JITOSOL', contract: 'TokenOFT9', name: 'jitoSOL', symbol: 'jitoSOL' },
     { deployment: 'FXRP', contract: 'TokenOFT6', name: 'FXRP', symbol: 'FXRP' },
 ] as const
 

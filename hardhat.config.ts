@@ -111,8 +111,8 @@ const config: HardhatUserConfig = {
             url: process.env.RPC_URL_HYPEREVM || 'https://rpc.hyperliquid.xyz/evm',
             accounts,
             oftAdapter: {
-                // TODO fill in kHYPE on HyperEVM; the deploy skips while this is empty.
-                tokenAddress: process.env.KHYPE_HYPEREVM_MAINNET || '',
+                // Kinetiq Staked HYPE, 18 decimals, confirmed on-chain.
+                tokenAddress: process.env.KHYPE_HYPEREVM_MAINNET || '0xfD739d4e423301CE9385c1fb8850539D657C296D',
                 deploymentName: 'KHYPE_Adapter',
             },
         },

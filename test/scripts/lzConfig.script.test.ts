@@ -97,6 +97,23 @@ for (const { label, build, hubEid, solanaEid } of SUITES) {
 }
 
 describe('hub token table', () => {
+    // Written once by `__OFT_init`, so a wrong value here is permanent for that deployment. Each pair
+    // mirrors the token being represented: kHYPE and fXRP from their live home contracts, SOL and
+    // jitoSOL from the Derive representations they replace.
+    it('names each token as its home chain does', () => {
+        const expected: Record<string, { name: string; symbol: string }> = {
+            HYPE: { name: 'HYPE', symbol: 'HYPE' },
+            KHYPE: { name: 'Kinetiq Staked HYPE', symbol: 'kHYPE' },
+            SOL: { name: 'wSOL', symbol: 'wSOL' },
+            JITOSOL: { name: 'jitoSOL', symbol: 'jitoSOL' },
+            FXRP: { name: 'FXRP', symbol: 'FXRP' },
+        }
+
+        for (const token of HUB_TOKENS) {
+            expect({ name: token.name, symbol: token.symbol }).toEqual(expected[token.deployment])
+        }
+    })
+
     it('pairs each token with the OFT variant carrying its home chain decimals', () => {
         const expected: Record<string, string> = {
             HYPE: 'TokenOFT18',

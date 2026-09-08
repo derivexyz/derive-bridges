@@ -20,8 +20,9 @@ contract ForkTest is Test {
     address internal constant ENDPOINT_FLARE = 0x1a44076050125825900e736c501f859c50fE728c;
     address internal constant ENDPOINT_HYPEREVM = 0x3A73033C0b1407574C76BdBAc67f126f6b4a9AA9;
 
-    // What hardhat.config.ts hands the fXRP adapter.
+    // What hardhat.config.ts hands each ERC20 adapter.
     address internal constant FXRP_FLARE = 0xAd552A648C74D49E10027AB8a618A3ad4901c5bE;
+    address internal constant KHYPE_HYPEREVM = 0xfD739d4e423301CE9385c1fb8850539D657C296D;
 
     uint256 internal constant SHARED_DECIMALS = 6;
 
@@ -74,19 +75,24 @@ contract ForkTest is Test {
         assertEq(adapter.decimalConversionRate(), 10 ** (18 - SHARED_DECIMALS), "wrong rate for 18 decimals");
     }
 
-    /// kHYPE's address is still unset in hardhat.config.ts. When it is filled in, run this with
-    /// KHYPE_HYPEREVM_MAINNET set and it checks the same property the fXRP test does.
-    function test_hyperevm_khypeMatchesAdapter() public {
-        address khype = vm.envOr("KHYPE_HYPEREVM_MAINNET", address(0));
-        if (khype == address(0)) return vm.skip(true);
+    /// kHYPE pairs with TokenOFT18, so its 18 decimals are load-bearing the same way fXRP's 6 are.
+    function test_hyperevm_khypeIsEighteenDecimals() public {
         if (!_forked("hyperevm")) return vm.skip(true);
 
-        TokenOFTAdapter adapter = new TokenOFTAdapter(khype, ENDPOINT_HYPEREVM);
+        assertEq(IERC20Metadata(KHYPE_HYPEREVM).decimals(), 18, "kHYPE is not 18 decimals");
+        assertEq(IERC20Metadata(KHYPE_HYPEREVM).symbol(), "kHYPE", "not the kHYPE token");
+    }
 
-        assertEq(adapter.token(), khype, "adapter escrows the wrong token");
+    function test_hyperevm_khypeAdapterMatchesToken() public {
+        if (!_forked("hyperevm")) return vm.skip(true);
+        _assertIsEndpoint(ENDPOINT_HYPEREVM);
+
+        TokenOFTAdapter adapter = new TokenOFTAdapter(KHYPE_HYPEREVM, ENDPOINT_HYPEREVM);
+
+        assertEq(adapter.token(), KHYPE_HYPEREVM, "adapter escrows the wrong token");
         assertEq(
             adapter.decimalConversionRate(),
-            10 ** (uint256(IERC20Metadata(khype).decimals()) - SHARED_DECIMALS),
+            10 ** (uint256(IERC20Metadata(KHYPE_HYPEREVM).decimals()) - SHARED_DECIMALS),
             "conversion rate does not follow the token"
         );
     }
