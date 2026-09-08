@@ -2,7 +2,7 @@ import { EndpointId } from '@layerzerolabs/lz-definitions'
 import { TwoWayConfig, generateConnectionsConfig } from '@layerzerolabs/metadata-tools'
 import { OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 
-import { EVM_ENFORCED_OPTIONS, SOLANA_ENFORCED_OPTIONS } from './tasks/common/constants'
+import { EVM_ENFORCED_OPTIONS, NATIVE_EVM_ENFORCED_OPTIONS, SOLANA_ENFORCED_OPTIONS } from './tasks/common/constants'
 import { getOftStoreAddress } from './tasks/solana'
 
 const SEPOLIA = EndpointId.SEPOLIA_V2_TESTNET
@@ -39,13 +39,15 @@ const CONFIRMATIONS: [number, number] = [15, 32]
 const DVNS: [string[], []] = [['LayerZero Labs'], []]
 
 const Connections: { [token: string]: TwoWayConfig[] } = {
+    // Only the HyperEVM-inbound leg carries the raised floor: that is the native credit, which
+    // forwards all remaining gas to the recipient. Hub-inbound is an ordinary mint.
     HYPE: [
         [
             Contracts.HYPE.sepolia,
             Contracts.HYPE.hyperevm,
             DVNS,
             CONFIRMATIONS,
-            [EVM_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
+            [NATIVE_EVM_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
         ],
     ],
     KHYPE: [

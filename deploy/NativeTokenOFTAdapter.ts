@@ -11,7 +11,7 @@ import { EndpointId } from '@layerzerolabs/lz-definitions'
 import { withBigBlock } from '../utils/hyperliquidBlocks'
 
 const contractName = 'NativeTokenOFTAdapter'
-const deploymentName = 'HYPE_Adapter'
+export const deploymentName = 'HYPE_Adapter'
 
 /// Escrows native HYPE on HyperEVM. 18 decimals, matching the gas token.
 const HYPE_DECIMALS = 18

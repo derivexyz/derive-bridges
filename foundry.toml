@@ -28,3 +28,9 @@ remappings = [
     '@layerzerolabs/=node_modules/@layerzerolabs/',
     '@openzeppelin/=node_modules/@openzeppelin/',
 ]
+
+# Fork targets. Public endpoints, each confirmed responding; fork tests skip when unreachable.
+[rpc_endpoints]
+ethereum = "https://ethereum-rpc.publicnode.com"
+flare = "https://flare-api.flare.network/ext/C/rpc"
+hyperevm = "https://rpc.hyperliquid.xyz/evm"
