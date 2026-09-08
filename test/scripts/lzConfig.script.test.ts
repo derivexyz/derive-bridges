@@ -12,6 +12,7 @@ import { deploymentName as nativeAdapterDeployment } from '../../deploy/NativeTo
 import { HUB_TOKENS } from '../../deploy/TokenOFT'
 import mainnetConfig from '../../layerzero.config'
 import testnetConfig from '../../layerzero.testnet-config'
+import evmConfig from '../../layerzero.testnet-evm-config'
 
 // Adapter names come from `oftAdapter.deploymentName` in hardhat.config.ts. Duplicated here rather than
 // importing the hardhat config, which would pull the whole plugin chain into jest.
@@ -95,6 +96,39 @@ for (const { label, build, hubEid, solanaEid } of SUITES) {
         })
     })
 }
+
+// The EVM-first config exists so the three Solana-free pathways can be wired on their own. It has to
+// stay a strict subset of the full testnet config, or wiring it would set something the full run then
+// has to undo.
+describe('layerzero testnet EVM-only config', () => {
+    let evm: LzConfig
+    let full: LzConfig
+
+    beforeAll(async () => {
+        evm = await (evmConfig as unknown as () => Promise<LzConfig>)()
+        full = await (testnetConfig as unknown as () => Promise<LzConfig>)()
+    })
+
+    it('carries only the three Solana-free pathways', () => {
+        expect(evm.connections.length).toBeGreaterThanOrEqual(3)
+        expect(evm.contracts).toHaveLength(6)
+    })
+
+    it('touches no Solana endpoint', () => {
+        for (const { contract } of evm.contracts) {
+            expect(contract.eid).not.toBe(EndpointId.SOLANA_V2_TESTNET as number)
+        }
+    })
+
+    it('names every contract the same way the full config does', () => {
+        const names = (c: LzConfig) => new Set(c.contracts.map(({ contract }) => contract.contractName).filter(Boolean))
+
+        const fullNames = names(full)
+        for (const name of names(evm)) {
+            expect([...fullNames]).toContain(name)
+        }
+    })
+})
 
 describe('hub token table', () => {
     // Written once by `__OFT_init`, so a wrong value here is permanent for that deployment. Each pair
