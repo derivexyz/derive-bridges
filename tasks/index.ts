@@ -1,6 +1,8 @@
 import './common/config.get'
 import './common/wire'
 import './common/sendOFT'
+import './evm/freezeDeriveSolana'
+import './evm/seedSolanaTokens'
 import './solana/initConfig'
 import './solana/createOFT'
 import './solana/createOFTAdapter'

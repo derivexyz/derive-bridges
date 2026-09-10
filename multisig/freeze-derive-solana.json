@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "chainId": "957",
+  "createdAt": 1789035587326,
+  "meta": {
+    "name": "Freeze Derive <-> Solana bridge",
+    "description": "wSOL: unset Solana peer; jitoSOL: unset Solana peer",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x169a99B9958386a5D91E732Ed08B344946A92391"
+  },
+  "transactions": [
+    {
+      "to": "0xDFF82f3Fa7fC78134EB47b6da4da8020309F88b9",
+      "value": "0",
+      "data": "0x3400288b00000000000000000000000000000000000000000000000000000000000075d80000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": null,
+      "contractInputsValues": null
+    },
+    {
+      "to": "0xA004E01B96BAcf6480eA47199148cBc210e82357",
+      "value": "0",
+      "data": "0x3400288b00000000000000000000000000000000000000000000000000000000000075d80000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": null,
+      "contractInputsValues": null
+    }
+  ]
+}
