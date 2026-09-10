@@ -10,6 +10,21 @@ export const EVM_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
     },
 ]
 
+/*
+ *  The native HYPE pathway credits its recipient with a bare call carrying all remaining gas, so this
+ *  floor has to cover a contract recipient's own bookkeeping rather than just a transfer. Measured in
+ *  test/foundry/EnforcedGas.t.sol: an EOA lands at 80k, a recipient doing five cold storage writes needs
+ *  between 150k and 180k. Falling short strands the transfer - a retry re-runs the same recipient.
+ */
+export const NATIVE_EVM_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
+    {
+        msgType: 1,
+        optionType: ExecutorOptionType.LZ_RECEIVE,
+        gas: 200000,
+        value: 0,
+    },
+]
+
 const CU_LIMIT = 200000 // This represents the CU limit for executing the `lz_receive` function on Solana.
 const SPL_TOKEN_ACCOUNT_RENT_VALUE = 2039280 // This figure represents lamports (https://solana.com/docs/references/terminology#lamport) on Solana. Read below for more details.
 /*

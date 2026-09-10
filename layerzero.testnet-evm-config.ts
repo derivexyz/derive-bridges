@@ -2,15 +2,15 @@ import { EndpointId } from '@layerzerolabs/lz-definitions'
 import { TwoWayConfig, generateConnectionsConfig } from '@layerzerolabs/metadata-tools'
 import { OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 
-import { EVM_ENFORCED_OPTIONS, NATIVE_EVM_ENFORCED_OPTIONS, SOLANA_ENFORCED_OPTIONS } from './tasks/common/constants'
-import { getOftStoreAddress } from './tasks/solana'
+import { EVM_ENFORCED_OPTIONS, NATIVE_EVM_ENFORCED_OPTIONS } from './tasks/common/constants'
 
 const SEPOLIA = EndpointId.SEPOLIA_V2_TESTNET
 const HYPEREVM = EndpointId.HYPERLIQUID_V2_TESTNET
 const FLARE = EndpointId.FLARE_V2_TESTNET
-const SOLANA = EndpointId.SOLANA_V2_TESTNET
 
-// Sepolia stands in for the Ethereum hub.
+// The three pathways that need no Solana keypair, no init-config and no wrapped SOL. Wire this to
+// prove the mesh, then move to layerzero.testnet-config.ts to add SOL and jitoSOL. Wiring is
+// idempotent, so the second run only applies what this one did not.
 const Contracts: { [token: string]: { [network: string]: OmniPointHardhat } } = {
     HYPE: {
         sepolia: { eid: SEPOLIA, contractName: 'HYPE' },
@@ -23,14 +23,6 @@ const Contracts: { [token: string]: { [network: string]: OmniPointHardhat } } = 
     FXRP: {
         sepolia: { eid: SEPOLIA, contractName: 'FXRP' },
         flare: { eid: FLARE, contractName: 'FXRP_Adapter' },
-    },
-    SOL: {
-        sepolia: { eid: SEPOLIA, contractName: 'SOL' },
-        solana: { eid: SOLANA, address: getOftStoreAddress(SOLANA, 'SOL') },
-    },
-    JITOSOL: {
-        sepolia: { eid: SEPOLIA, contractName: 'JITOSOL' },
-        solana: { eid: SOLANA, address: getOftStoreAddress(SOLANA, 'JITOSOL') },
     },
 }
 
@@ -66,24 +58,6 @@ const Connections: { [token: string]: TwoWayConfig[] } = {
             DVNS,
             CONFIRMATIONS,
             [EVM_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
-        ],
-    ],
-    SOL: [
-        [
-            Contracts.SOL.sepolia,
-            Contracts.SOL.solana,
-            DVNS,
-            CONFIRMATIONS,
-            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
-        ],
-    ],
-    JITOSOL: [
-        [
-            Contracts.JITOSOL.sepolia,
-            Contracts.JITOSOL.solana,
-            DVNS,
-            CONFIRMATIONS,
-            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
         ],
     ],
 }

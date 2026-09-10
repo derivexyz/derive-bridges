@@ -17,7 +17,7 @@ import {
 
 import { createAptosSignerFactory } from '../aptos'
 import { deriveConnection, useWeb3Js } from '../solana'
-import { findSolanaEndpointIdInGraph, loadAllSolanaDeployments, validateSigningAuthority } from '../solana/utils'
+import { findSolanaEndpointIdInGraphOrNull, loadAllSolanaDeployments, validateSigningAuthority } from '../solana/utils'
 
 import { publicKey as publicKeyType } from './types'
 import {
@@ -71,11 +71,17 @@ task(TASK_LZ_OAPP_WIRE)
         //
         //
 
+        // Everything below this point is Solana setup, so an EVM-only configuration would otherwise
+        // fail on a missing keypair for pathways it never touches. Hand those back to the default task.
+        const solanaEid = await findSolanaEndpointIdInGraphOrNull(hre, args.oappConfig)
+        if (solanaEid == null) {
+            logger.info('No Solana pathway in this configuration, wiring EVM only')
+            return runSuper(args)
+        }
+
         // construct the user's keypair via the SOLANA_PRIVATE_KEY env var
         const keypair = (await useWeb3Js()).web3JsKeypair // note: this can be replaced with getSolanaKeypair() if we are okay to export that
         const userAccount = keypair.publicKey
-
-        const solanaEid = await findSolanaEndpointIdInGraph(hre, args.oappConfig)
 
         // Load all Solana deployments for this endpoint and build a programId map
         const solanaDeployments = loadAllSolanaDeployments(solanaEid)

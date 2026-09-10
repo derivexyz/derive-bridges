@@ -2,49 +2,91 @@ import { EndpointId } from '@layerzerolabs/lz-definitions'
 import { TwoWayConfig, generateConnectionsConfig } from '@layerzerolabs/metadata-tools'
 import { OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 
-import { EVM_ENFORCED_OPTIONS, SOLANA_ENFORCED_OPTIONS } from './tasks/common/constants'
+import { EVM_ENFORCED_OPTIONS, NATIVE_EVM_ENFORCED_OPTIONS, SOLANA_ENFORCED_OPTIONS } from './tasks/common/constants'
 import { getOftStoreAddress } from './tasks/solana'
 
+const ETHEREUM = EndpointId.ETHEREUM_V2_MAINNET
+const HYPEREVM = EndpointId.HYPERLIQUID_V2_MAINNET
+const FLARE = EndpointId.FLARE_V2_MAINNET
+const SOLANA = EndpointId.SOLANA_V2_MAINNET
+
+// Ethereum is the hub: every token is minted here against an escrow on its home chain.
 const Contracts: { [token: string]: { [network: string]: OmniPointHardhat } } = {
-    JITOSOL: {
-        derive: {
-            eid: EndpointId.LYRA_V2_MAINNET,
-            contractName: 'JITOSOL_DeriveOFTReceiver',
-        },
-        solana: {
-            eid: EndpointId.SOLANA_V2_MAINNET,
-            address: getOftStoreAddress(EndpointId.SOLANA_V2_MAINNET, 'JITOSOL'),
-        },
+    HYPE: {
+        ethereum: { eid: ETHEREUM, contractName: 'HYPE' },
+        hyperevm: { eid: HYPEREVM, contractName: 'HYPE_Adapter' },
+    },
+    KHYPE: {
+        ethereum: { eid: ETHEREUM, contractName: 'KHYPE' },
+        hyperevm: { eid: HYPEREVM, contractName: 'KHYPE_Adapter' },
+    },
+    FXRP: {
+        ethereum: { eid: ETHEREUM, contractName: 'FXRP' },
+        flare: { eid: FLARE, contractName: 'FXRP_Adapter' },
     },
     SOL: {
-        derive: {
-            eid: EndpointId.LYRA_V2_MAINNET,
-            contractName: 'SOL_DeriveOFTReceiver',
-        },
-        solana: {
-            eid: EndpointId.SOLANA_V2_MAINNET,
-            address: getOftStoreAddress(EndpointId.SOLANA_V2_MAINNET, 'SOL'),
-        },
+        ethereum: { eid: ETHEREUM, contractName: 'SOL' },
+        solana: { eid: SOLANA, address: getOftStoreAddress(SOLANA, 'SOL') },
+    },
+    JITOSOL: {
+        ethereum: { eid: ETHEREUM, contractName: 'JITOSOL' },
+        solana: { eid: SOLANA, address: getOftStoreAddress(SOLANA, 'JITOSOL') },
     },
 }
 
+// TODO confirmations carried over from the Derive-era config, where Derive was the source. Review
+// per pathway now that Ethereum is, since its finality differs from an L2's.
+const CONFIRMATIONS: [number, number] = [15, 32]
+
+// TODO single required DVN is a 1-of-1 trust assumption. Comparable deployments run a 4-of-4 set.
+const DVNS: [string[], []] = [['LayerZero Labs'], []]
+
 const Connections: { [token: string]: TwoWayConfig[] } = {
-    JITOSOL: [
+    // Only the HyperEVM-inbound leg carries the raised floor: that is the native credit, which
+    // forwards all remaining gas to the recipient. Hub-inbound is an ordinary mint.
+    HYPE: [
         [
-            Contracts.JITOSOL.derive,
-            Contracts.JITOSOL.solana,
-            [['LayerZero Labs'], []], // [ requiredDVN[], [ optionalDVN[], threshold ] ]
-            [15, 32], // [dest to src confirmations, src to dest confirmations]
-            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS], // dest enforcedOptions, src enforcedOptions
+            Contracts.HYPE.ethereum,
+            Contracts.HYPE.hyperevm,
+            DVNS,
+            CONFIRMATIONS,
+            [NATIVE_EVM_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
+        ],
+    ],
+    KHYPE: [
+        [
+            Contracts.KHYPE.ethereum,
+            Contracts.KHYPE.hyperevm,
+            DVNS,
+            CONFIRMATIONS,
+            [EVM_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
+        ],
+    ],
+    FXRP: [
+        [
+            Contracts.FXRP.ethereum,
+            Contracts.FXRP.flare,
+            DVNS,
+            CONFIRMATIONS,
+            [EVM_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
         ],
     ],
     SOL: [
         [
-            Contracts.SOL.derive,
+            Contracts.SOL.ethereum,
             Contracts.SOL.solana,
-            [['LayerZero Labs'], []], // [ requiredDVN[], [ optionalDVN[], threshold ] ]
-            [15, 32], // [dest to src confirmations, src to dest confirmations]
-            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS], // dest enforcedOptions, src enforcedOptions
+            DVNS,
+            CONFIRMATIONS,
+            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
+        ],
+    ],
+    JITOSOL: [
+        [
+            Contracts.JITOSOL.ethereum,
+            Contracts.JITOSOL.solana,
+            DVNS,
+            CONFIRMATIONS,
+            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
         ],
     ],
 }

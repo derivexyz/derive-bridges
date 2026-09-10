@@ -19,9 +19,9 @@
     "test:scripts": "jest --config jest.config.ts --runInBand --testMatch \"**/*.script.test.ts\""
   },
   "resolutions": {
-    "@solana/web3.js": "^1.98.0",
-    "ethers": "^5.7.2",
-    "hardhat-deploy": "^0.12.1"
+    "@solana/web3.js": "^1.98.4",
+    "ethers": "^5.8.0",
+    "hardhat-deploy": "^0.12.4"
   },
   "dependencies": {
     "@layerzerolabs/oapp-evm-upgradeable": "^0.1.3",
@@ -115,14 +115,14 @@
   },
   "pnpm": {
     "overrides": {
-      "@solana/web3.js": "^1.98.0",
-      "ethers": "^5.7.2",
-      "hardhat-deploy": "^0.12.1"
+      "@solana/web3.js": "^1.98.4",
+      "ethers": "^5.8.0",
+      "hardhat-deploy": "^0.12.4"
     }
   },
   "overrides": {
-    "@solana/web3.js": "^1.98.0",
-    "ethers": "^5.7.2",
-    "hardhat-deploy": "^0.12.1"
+    "@solana/web3.js": "^1.98.4",
+    "ethers": "^5.8.0",
+    "hardhat-deploy": "^0.12.4"
   }
 }
