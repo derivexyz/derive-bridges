@@ -1,6 +1,6 @@
 import 'hardhat/types/config'
 
-interface OftAdapterConfig {
+export interface OftAdapterConfig {
     /// Token this chain's adapter escrows.
     tokenAddress: string
     /// hardhat-deploy name for the adapter, e.g. 'FXRP_Adapter'.
@@ -9,18 +9,18 @@ interface OftAdapterConfig {
 
 declare module 'hardhat/types/config' {
     interface HardhatNetworkUserConfig {
-        oftAdapter?: never
+        oftAdapters?: never
     }
 
     interface HardhatNetworkConfig {
-        oftAdapter?: never
+        oftAdapters?: never
     }
 
     interface HttpNetworkUserConfig {
-        oftAdapter?: OftAdapterConfig
+        oftAdapters?: OftAdapterConfig[]
     }
 
     interface HttpNetworkConfig {
-        oftAdapter?: OftAdapterConfig
+        oftAdapters?: OftAdapterConfig[]
     }
 }

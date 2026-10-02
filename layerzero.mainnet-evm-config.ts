@@ -2,16 +2,16 @@ import { EndpointId } from '@layerzerolabs/lz-definitions'
 import { TwoWayConfig, generateConnectionsConfig } from '@layerzerolabs/metadata-tools'
 import { OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 
-import { EVM_ENFORCED_OPTIONS, NATIVE_EVM_ENFORCED_OPTIONS, SOLANA_ENFORCED_OPTIONS } from './tasks/common/constants'
-import { getOftStoreAddress } from './tasks/solana'
+import { EVM_ENFORCED_OPTIONS, NATIVE_EVM_ENFORCED_OPTIONS } from './tasks/common/constants'
 
 const ETHEREUM = EndpointId.ETHEREUM_V2_MAINNET
 const HYPEREVM = EndpointId.HYPERLIQUID_V2_MAINNET
 const FLARE = EndpointId.FLARE_V2_MAINNET
 const BASE = EndpointId.BASE_V2_MAINNET
-const SOLANA = EndpointId.SOLANA_V2_MAINNET
 
-// Ethereum is the hub: every token is minted here against an escrow on its home chain.
+// The four pathways the deployer can wire alone. SOL and jitoSOL are left to layerzero.config.ts,
+// since their Solana side is admin-owned by a multisig. Wiring is idempotent, so running the full
+// config later only applies what this one did not.
 const Contracts: { [token: string]: { [network: string]: OmniPointHardhat } } = {
     HYPE: {
         ethereum: { eid: ETHEREUM, contractName: 'HYPE' },
@@ -29,22 +29,12 @@ const Contracts: { [token: string]: { [network: string]: OmniPointHardhat } } = 
         ethereum: { eid: ETHEREUM, contractName: 'WETH' },
         base: { eid: BASE, contractName: 'WETH_Adapter' },
     },
-    SOL: {
-        ethereum: { eid: ETHEREUM, contractName: 'SOL' },
-        solana: { eid: SOLANA, address: getOftStoreAddress(SOLANA, 'SOL') },
-    },
-    JITOSOL: {
-        ethereum: { eid: ETHEREUM, contractName: 'JITOSOL' },
-        solana: { eid: SOLANA, address: getOftStoreAddress(SOLANA, 'JITOSOL') },
-    },
 }
 
-// TODO confirmations carried over from the Derive-era config, where Derive was the source. Review
-// per pathway now that Ethereum is, since its finality differs from an L2's.
+// Must match layerzero.config.ts, or the full run would undo what this one set.
 const CONFIRMATIONS: [number, number] = [15, 32]
 
-// Every message needs all three to verify. Names resolve per chain through LayerZero's metadata;
-// all three run on Ethereum, Base, HyperEVM, Flare and Solana.
+// Must match layerzero.config.ts, as above.
 const DVNS: [string[], []] = [['LayerZero Labs', 'Horizen', 'Canary'], []]
 
 const Connections: { [token: string]: TwoWayConfig[] } = {
@@ -84,24 +74,6 @@ const Connections: { [token: string]: TwoWayConfig[] } = {
             DVNS,
             CONFIRMATIONS,
             [EVM_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
-        ],
-    ],
-    SOL: [
-        [
-            Contracts.SOL.ethereum,
-            Contracts.SOL.solana,
-            DVNS,
-            CONFIRMATIONS,
-            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
-        ],
-    ],
-    JITOSOL: [
-        [
-            Contracts.JITOSOL.ethereum,
-            Contracts.JITOSOL.solana,
-            DVNS,
-            CONFIRMATIONS,
-            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
         ],
     ],
 }

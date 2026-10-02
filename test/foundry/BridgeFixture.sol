@@ -8,9 +8,8 @@ import { IOFT, SendParam, MessagingFee } from "@layerzerolabs/oft-evm/contracts/
 import { OptionsBuilder } from "@layerzerolabs/oapp-evm/contracts/oapp/libs/OptionsBuilder.sol";
 
 import { NativeTokenOFTAdapter } from "../../contracts/NativeTokenOFTAdapter.sol";
-import { TokenOFT18 } from "../../contracts/TokenOFT18.sol";
-import { TokenOFT6 } from "../../contracts/TokenOFT6.sol";
-import { TokenOFT9 } from "../../contracts/TokenOFT9.sol";
+import { OFTToken, OFTToken18, OFTToken8, OFTToken6 } from "../../contracts/OFTToken.sol";
+import { OFTToken9Seeded } from "../../contracts/OFTTokenSeeded.sol";
 import { TokenOFTAdapter } from "../../contracts/TokenOFTAdapter.sol";
 import { StandInToken } from "../../contracts/testnet/StandInToken.sol";
 
@@ -38,19 +37,23 @@ abstract contract BridgeFixture is TestHelperOz5 {
 
         address hubImpl;
         if (_decimals == 18) {
-            hubImpl = address(new TokenOFT18(address(endpoints[HUB_EID])));
+            hubImpl = address(new OFTToken18(address(endpoints[HUB_EID])));
         } else if (_decimals == 9) {
-            hubImpl = address(new TokenOFT9(address(endpoints[HUB_EID])));
+            hubImpl = address(new OFTToken9Seeded(address(endpoints[HUB_EID])));
+        } else if (_decimals == 8) {
+            hubImpl = address(new OFTToken8(address(endpoints[HUB_EID])));
+        } else if (_decimals == 6) {
+            hubImpl = address(new OFTToken6(address(endpoints[HUB_EID])));
         } else {
-            hubImpl = address(new TokenOFT6(address(endpoints[HUB_EID])));
+            revert("no hub variant for these decimals");
         }
 
-        // The three variants share an initialize signature, so one selector serves all of them.
+        // initialize lives on the shared base, so one selector serves all of them.
         hub = IOFT(
             address(
                 new ERC1967Proxy(
                     hubImpl,
-                    abi.encodeCall(TokenOFT18.initialize, ("Hub Token", "HUB", address(this)))
+                    abi.encodeCall(OFTToken.initialize, ("Hub Token", "HUB", address(this)))
                 )
             )
         );
@@ -66,12 +69,12 @@ abstract contract BridgeFixture is TestHelperOz5 {
     }
 
     function _deployNativePair() internal returns (IOFT hub, NativeTokenOFTAdapter adapter) {
-        address hubImpl = address(new TokenOFT18(address(endpoints[HUB_EID])));
+        address hubImpl = address(new OFTToken18(address(endpoints[HUB_EID])));
         hub = IOFT(
             address(
                 new ERC1967Proxy(
                     hubImpl,
-                    abi.encodeCall(TokenOFT18.initialize, ("Hub Native", "HUBN", address(this)))
+                    abi.encodeCall(OFTToken.initialize, ("Hub Native", "HUBN", address(this)))
                 )
             )
         );

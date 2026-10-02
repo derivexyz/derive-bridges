@@ -12,7 +12,7 @@ import { StandInToken } from "../../contracts/testnet/StandInToken.sol";
 
 /// @notice The hub mints at its home chain's decimals rather than defaulting to 18. Nothing reverts if
 ///         that is wrong - the token is simply misdenominated by orders of magnitude - so these are the
-///         tests that hold the 18/9/6 split in place.
+///         tests that hold the 18/9/8/6 split in place.
 contract DecimalsTest is BridgeFixture {
     address private alice = makeAddr("alice");
     address private bob = makeAddr("bob");
@@ -54,6 +54,10 @@ contract DecimalsTest is BridgeFixture {
         _assertOneTokenCrossesIntact(9);
     }
 
+    function test_oneToken_crossesIntact_8Decimals() public {
+        _assertOneTokenCrossesIntact(8);
+    }
+
     function test_oneToken_crossesIntact_6Decimals() public {
         _assertOneTokenCrossesIntact(6);
     }
@@ -61,7 +65,7 @@ contract DecimalsTest is BridgeFixture {
     /// Every token the hub has minted must be matched by collateral sitting in the escrow. This is the
     /// property the whole bridge rests on, and the one worth monitoring in production.
     function testFuzz_escrowMatchesHubSupply(uint96 _rawAmount, uint8 _pick) public {
-        uint8 decimals = [uint8(18), 9, 6][_pick % 3];
+        uint8 decimals = [uint8(18), 9, 8, 6][_pick % 4];
         (IOFT hub, TokenOFTAdapter adapter, StandInToken token) = _deployPair(decimals);
 
         uint256 amount = bound(uint256(_rawAmount), 1, _sharedDecimalsCeiling(decimals));

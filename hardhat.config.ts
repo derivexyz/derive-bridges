@@ -72,7 +72,7 @@ const config: HardhatUserConfig = {
             eid: EndpointId.ETHEREUM_V2_MAINNET,
             url: process.env.RPC_URL_ETHEREUM || 'https://ethereum-rpc.publicnode.com',
             accounts,
-            verify: { etherscan: { apiUrl: 'https://eth.blockscout.com/api' } },
+            // No `verify` block: verified on Etherscan V2 by `lz:evm:verify`, as are Base and HyperEVM.
         },
         'sepolia-testnet': {
             eid: EndpointId.SEPOLIA_V2_TESTNET,
@@ -85,46 +85,68 @@ const config: HardhatUserConfig = {
             eid: EndpointId.FLARE_V2_MAINNET,
             url: process.env.RPC_URL_FLARE || 'https://flare-api.flare.network/ext/C/rpc',
             accounts,
-            oftAdapter: {
-                tokenAddress: process.env.FXRP_FLARE_MAINNET || '0xAd552A648C74D49E10027AB8a618A3ad4901c5bE',
-                deploymentName: 'FXRP_Adapter',
-            },
+            oftAdapters: [
+                {
+                    tokenAddress: process.env.FXRP_FLARE_MAINNET || '0xAd552A648C74D49E10027AB8a618A3ad4901c5bE',
+                    deploymentName: 'FXRP_Adapter',
+                },
+            ],
             verify: { etherscan: { apiUrl: 'https://flare-explorer.flare.network/api' } },
         },
         'flare-testnet': {
             eid: EndpointId.FLARE_V2_TESTNET,
             url: process.env.RPC_URL_FLARE_TESTNET || 'https://coston2-api.flare.network/ext/C/rpc',
             accounts,
-            oftAdapter: {
-                // FTestXRP, 6 decimals. Resolved from FlareContractRegistry ->
-                // AssetManagerFXRP.fAsset(), since Flare publishes no static address.
-                tokenAddress: process.env.FXRP_FLARE_TESTNET || '0x0b6A3645c240605887a5532109323A3E12273dc7',
-                deploymentName: 'FXRP_Adapter',
-            },
+            oftAdapters: [
+                {
+                    // FTestXRP, 6 decimals. Resolved from FlareContractRegistry ->
+                    // AssetManagerFXRP.fAsset(), since Flare publishes no static address.
+                    tokenAddress: process.env.FXRP_FLARE_TESTNET || '0x0b6A3645c240605887a5532109323A3E12273dc7',
+                    deploymentName: 'FXRP_Adapter',
+                },
+            ],
             verify: { etherscan: { apiUrl: 'https://coston2-explorer.flare.network/api' } },
+        },
+        // cbBTC and wETH's home chain.
+        'base-mainnet': {
+            eid: EndpointId.BASE_V2_MAINNET,
+            url: process.env.RPC_URL_BASE || 'https://mainnet.base.org',
+            accounts,
+            oftAdapters: [
+                {
+                    // Coinbase Wrapped BTC, 8 decimals, confirmed on-chain.
+                    tokenAddress: process.env.CBBTC_BASE_MAINNET || '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
+                    deploymentName: 'CBBTC_Adapter',
+                },
+                {
+                    // Base's canonical WETH predeploy, 18 decimals, confirmed on-chain.
+                    tokenAddress: process.env.WETH_BASE_MAINNET || '0x4200000000000000000000000000000000000006',
+                    deploymentName: 'WETH_Adapter',
+                },
+            ],
         },
         // HYPE and kHYPE's home chain. Deploys here need big blocks, handled in the deploy scripts.
         // No `verify` block: hyperevmscan.io serves only the Etherscan V2 API, which hardhat-deploy's
-        // V1-style etherscan-verify cannot drive. Verify these two through the explorer's web UI.
+        // V1-style etherscan-verify cannot drive. `lz:evm:verify` can.
         'hyperevm-mainnet': {
             eid: EndpointId.HYPERLIQUID_V2_MAINNET,
             url: process.env.RPC_URL_HYPEREVM || 'https://rpc.hyperliquid.xyz/evm',
             accounts,
-            oftAdapter: {
-                // Kinetiq Staked HYPE, 18 decimals, confirmed on-chain.
-                tokenAddress: process.env.KHYPE_HYPEREVM_MAINNET || '0xfD739d4e423301CE9385c1fb8850539D657C296D',
-                deploymentName: 'KHYPE_Adapter',
-            },
+            // kHYPE is not bridged on mainnet yet. When it is, add an adapter here for Kinetiq Staked
+            // HYPE (0xfD739d4e423301CE9385c1fb8850539D657C296D, 18 decimals, confirmed on-chain) under
+            // 'KHYPE_Adapter', and KHYPE back to the mainnet hub tokens.
         },
         'hyperevm-testnet': {
             eid: EndpointId.HYPERLIQUID_V2_TESTNET,
             url: process.env.RPC_URL_HYPEREVM_TESTNET || 'https://rpc.hyperliquid-testnet.xyz/evm',
             accounts,
-            oftAdapter: {
-                // TODO fill in kHYPE on HyperEVM testnet; the deploy skips while this is empty.
-                tokenAddress: process.env.KHYPE_HYPEREVM_TESTNET || '',
-                deploymentName: 'KHYPE_Adapter',
-            },
+            oftAdapters: [
+                {
+                    // No kHYPE on HyperEVM testnet: left empty, the adapter escrows the stand-in.
+                    tokenAddress: process.env.KHYPE_HYPEREVM_TESTNET || '',
+                    deploymentName: 'KHYPE_Adapter',
+                },
+            ],
         },
         hardhat: {
             // Need this for testing because TestHelperOz5.sol is exceeding the compiled contract size limit

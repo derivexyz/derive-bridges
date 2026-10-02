@@ -7,7 +7,8 @@ import {Test} from "forge-std/Test.sol";
 
 import {IOFT, SendParam} from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
 
-import {TokenOFT9} from "../../contracts/TokenOFT9.sol";
+import {OFTToken} from "../../contracts/OFTToken.sol";
+import {OFTToken9Seeded} from "../../contracts/OFTTokenSeeded.sol";
 
 interface IDeriveOFTReceiver {
     function peers(uint32 eid) external view returns (bytes32);
@@ -231,11 +232,11 @@ contract MigrationTest is Test {
         assertEq(oapp.lockedAmount(SOLANA_EID), outstanding, "lockedAmount and totalSupply diverged");
     }
 
-    function _deployHub(string memory symbol) private returns (TokenOFT9 hub) {
-        address implementation = address(new TokenOFT9(ENDPOINT_DERIVE));
-        hub = TokenOFT9(
+    function _deployHub(string memory symbol) private returns (OFTToken9Seeded hub) {
+        address implementation = address(new OFTToken9Seeded(ENDPOINT_DERIVE));
+        hub = OFTToken9Seeded(
             address(
-                new ERC1967Proxy(implementation, abi.encodeCall(TokenOFT9.initialize, (symbol, symbol, address(this))))
+                new ERC1967Proxy(implementation, abi.encodeCall(OFTToken.initialize, (symbol, symbol, address(this))))
             )
         );
         hub.transferOwnership(hubSafe);
@@ -245,7 +246,7 @@ contract MigrationTest is Test {
         assertEq(hub.decimals(), 9, "hub decimals must match Derive's");
     }
 
-    function _seed(TokenOFT9 hub, uint256 amount) private {
+    function _seed(OFTToken9Seeded hub, uint256 amount) private {
         vm.prank(hubSafe);
         hub.seed(distributor, amount);
 
@@ -272,7 +273,7 @@ contract MigrationTest is Test {
     function test_seed_cannotRunTwice() public {
         if (!forked) return vm.skip(true);
 
-        TokenOFT9 hub = _deployHub("wSOL");
+        OFTToken9Seeded hub = _deployHub("wSOL");
         _seed(hub, 1_000e9);
 
         vm.prank(hubSafe);
@@ -283,7 +284,7 @@ contract MigrationTest is Test {
     function test_seed_onlyOwner() public {
         if (!forked) return vm.skip(true);
 
-        TokenOFT9 hub = _deployHub("wSOL");
+        OFTToken9Seeded hub = _deployHub("wSOL");
 
         vm.prank(distributor);
         vm.expectRevert();

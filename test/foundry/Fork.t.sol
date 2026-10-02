@@ -5,9 +5,8 @@ import { Test } from "forge-std/Test.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 import { NativeTokenOFTAdapter } from "../../contracts/NativeTokenOFTAdapter.sol";
-import { TokenOFT18 } from "../../contracts/TokenOFT18.sol";
-import { TokenOFT6 } from "../../contracts/TokenOFT6.sol";
-import { TokenOFT9 } from "../../contracts/TokenOFT9.sol";
+import { OFTToken18, OFTToken6 } from "../../contracts/OFTToken.sol";
+import { OFTToken9Seeded } from "../../contracts/OFTTokenSeeded.sol";
 import { TokenOFTAdapter } from "../../contracts/TokenOFTAdapter.sol";
 
 /// @notice Deploys the implementations against the real endpoints and real tokens on forked chains.
@@ -43,7 +42,7 @@ contract ForkTest is Test {
     }
 
     /// The adapter reads decimals off the token in its constructor, so a wrong assumption here silently
-    /// misdenominates the whole pathway. This is the check that pins fXRP to TokenOFT6.
+    /// misdenominates the whole pathway. This is the check that pins fXRP to OFTToken6.
     function test_flare_fxrpIsSixDecimals() public {
         if (!_forked("flare")) return vm.skip(true);
 
@@ -75,7 +74,7 @@ contract ForkTest is Test {
         assertEq(adapter.decimalConversionRate(), 10 ** (18 - SHARED_DECIMALS), "wrong rate for 18 decimals");
     }
 
-    /// kHYPE pairs with TokenOFT18, so its 18 decimals are load-bearing the same way fXRP's 6 are.
+    /// kHYPE pairs with OFTToken18, so its 18 decimals are load-bearing the same way fXRP's 6 are.
     function test_hyperevm_khypeIsEighteenDecimals() public {
         if (!_forked("hyperevm")) return vm.skip(true);
 
@@ -103,9 +102,9 @@ contract ForkTest is Test {
         if (!_forked("ethereum")) return vm.skip(true);
         _assertIsEndpoint(ENDPOINT_ETHEREUM);
 
-        TokenOFT18 hub18 = new TokenOFT18(ENDPOINT_ETHEREUM);
-        TokenOFT9 hub9 = new TokenOFT9(ENDPOINT_ETHEREUM);
-        TokenOFT6 hub6 = new TokenOFT6(ENDPOINT_ETHEREUM);
+        OFTToken18 hub18 = new OFTToken18(ENDPOINT_ETHEREUM);
+        OFTToken9Seeded hub9 = new OFTToken9Seeded(ENDPOINT_ETHEREUM);
+        OFTToken6 hub6 = new OFTToken6(ENDPOINT_ETHEREUM);
 
         assertEq(hub18.decimals(), 18);
         assertEq(hub9.decimals(), 9);

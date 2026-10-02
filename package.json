@@ -39,6 +39,7 @@
     "@layerzerolabs/devtools-evm-hardhat": "^4.0.4",
     "@layerzerolabs/devtools-solana": "~3.0.7",
     "@layerzerolabs/eslint-config-next": "~2.3.44",
+    "@layerzerolabs/hyperliquid-composer": "^2.0.8",
     "@layerzerolabs/io-devtools": "~0.3.2",
     "@layerzerolabs/lz-definitions": "^3.0.160",
     "@layerzerolabs/lz-evm-messagelib-v2": "^3.0.160",
