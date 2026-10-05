@@ -37,6 +37,7 @@ remappings = [
 [rpc_endpoints]
 # publicnode refuses the historical state a fork needs ("Archive requests require a personal token").
 ethereum = "https://eth.drpc.org"
+base = "https://mainnet.base.org"
 flare = "https://flare-api.flare.network/ext/C/rpc"
 hyperevm = "https://rpc.hyperliquid.xyz/evm"
 derive = "https://rpc.lyra.finance"

@@ -10,6 +10,15 @@ export const EVM_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
     },
 ]
 
+export const FLARE_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
+    {
+        msgType: 1,
+        optionType: ExecutorOptionType.LZ_RECEIVE,
+        gas: 150_000,
+        value: 0,
+    },
+]
+
 /*
  *  The native HYPE pathway credits its recipient with a bare call carrying all remaining gas, so this
  *  floor has to cover a contract recipient's own bookkeeping rather than just a transfer. Measured in

@@ -2,7 +2,7 @@ import { EndpointId } from '@layerzerolabs/lz-definitions'
 import { TwoWayConfig, generateConnectionsConfig } from '@layerzerolabs/metadata-tools'
 import { OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 
-import { EVM_ENFORCED_OPTIONS, NATIVE_EVM_ENFORCED_OPTIONS, SOLANA_ENFORCED_OPTIONS } from './tasks/common/constants'
+import { EVM_ENFORCED_OPTIONS, FLARE_ENFORCED_OPTIONS, NATIVE_EVM_ENFORCED_OPTIONS, SOLANA_ENFORCED_OPTIONS } from './tasks/common/constants'
 import { getOftStoreAddress } from './tasks/solana'
 
 const ETHEREUM = EndpointId.ETHEREUM_V2_MAINNET
@@ -65,7 +65,7 @@ const Connections: { [token: string]: TwoWayConfig[] } = {
             Contracts.FXRP.flare,
             DVNS,
             CONFIRMATIONS,
-            [EVM_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
+            [FLARE_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
         ],
     ],
     CBBTC: [

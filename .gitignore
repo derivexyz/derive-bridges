@@ -12,6 +12,8 @@ typechain-types
 cache
 artifacts
 
+broadcast
+
 
 # LayerZero specific files
 .layerzero
@@ -28,3 +30,6 @@ pnpm-error.log
 
 sol-keys/
 
+
+# forge script dry-run logs; the broadcast logs of real runs stay as a record
+broadcast/**/dry-run/
