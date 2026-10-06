@@ -2,49 +2,88 @@ import { EndpointId } from '@layerzerolabs/lz-definitions'
 import { TwoWayConfig, generateConnectionsConfig } from '@layerzerolabs/metadata-tools'
 import { OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 
-import { EVM_ENFORCED_OPTIONS, SOLANA_ENFORCED_OPTIONS } from './tasks/common/constants'
+import { EVM_ENFORCED_OPTIONS, NATIVE_EVM_ENFORCED_OPTIONS, SOLANA_ENFORCED_OPTIONS } from './tasks/common/constants'
 import { getOftStoreAddress } from './tasks/solana'
 
+const SEPOLIA = EndpointId.SEPOLIA_V2_TESTNET
+const HYPEREVM = EndpointId.HYPERLIQUID_V2_TESTNET
+const FLARE = EndpointId.FLARE_V2_TESTNET
+const SOLANA = EndpointId.SOLANA_V2_TESTNET
+
+// Sepolia stands in for the Ethereum hub.
 const Contracts: { [token: string]: { [network: string]: OmniPointHardhat } } = {
-    JITOSOL: {
-        arbSep: {
-            eid: EndpointId.ARBSEP_V2_TESTNET,
-            contractName: 'JITOSOL_DeriveOFTReceiver',
-        },
-        solana: {
-            eid: EndpointId.SOLANA_V2_TESTNET,
-            address: getOftStoreAddress(EndpointId.SOLANA_V2_TESTNET, 'JITOSOL'),
-        },
+    HYPE: {
+        sepolia: { eid: SEPOLIA, contractName: 'HYPE' },
+        hyperevm: { eid: HYPEREVM, contractName: 'HYPE_Adapter' },
+    },
+    KHYPE: {
+        sepolia: { eid: SEPOLIA, contractName: 'KHYPE' },
+        hyperevm: { eid: HYPEREVM, contractName: 'KHYPE_Adapter' },
+    },
+    FXRP: {
+        sepolia: { eid: SEPOLIA, contractName: 'FXRP' },
+        flare: { eid: FLARE, contractName: 'FXRP_Adapter' },
     },
     SOL: {
-        arbSep: {
-            eid: EndpointId.ARBSEP_V2_TESTNET,
-            contractName: 'SOL_DeriveOFTReceiver',
-        },
-        solana: {
-            eid: EndpointId.SOLANA_V2_TESTNET,
-            address: getOftStoreAddress(EndpointId.SOLANA_V2_TESTNET, 'SOL'),
-        },
+        sepolia: { eid: SEPOLIA, contractName: 'SOL' },
+        solana: { eid: SOLANA, address: getOftStoreAddress(SOLANA, 'SOL') },
+    },
+    JITOSOL: {
+        sepolia: { eid: SEPOLIA, contractName: 'JITOSOL' },
+        solana: { eid: SOLANA, address: getOftStoreAddress(SOLANA, 'JITOSOL') },
     },
 }
 
+const CONFIRMATIONS: [number, number] = [15, 32]
+
+const DVNS: [string[], []] = [['LayerZero Labs'], []]
+
 const Connections: { [token: string]: TwoWayConfig[] } = {
-    JITOSOL: [
+    // Only the HyperEVM-inbound leg carries the raised floor: that is the native credit, which
+    // forwards all remaining gas to the recipient. Hub-inbound is an ordinary mint.
+    HYPE: [
         [
-            Contracts.JITOSOL.arbSep,
-            Contracts.JITOSOL.solana,
-            [['LayerZero Labs'], []], // [ requiredDVN[], [ optionalDVN[], threshold ] ]
-            [15, 32], // [dest to src confirmations, src to dest confirmations]
-            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS], // dest enforcedOptions, src enforcedOptions
+            Contracts.HYPE.sepolia,
+            Contracts.HYPE.hyperevm,
+            DVNS,
+            CONFIRMATIONS,
+            [NATIVE_EVM_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
+        ],
+    ],
+    KHYPE: [
+        [
+            Contracts.KHYPE.sepolia,
+            Contracts.KHYPE.hyperevm,
+            DVNS,
+            CONFIRMATIONS,
+            [EVM_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
+        ],
+    ],
+    FXRP: [
+        [
+            Contracts.FXRP.sepolia,
+            Contracts.FXRP.flare,
+            DVNS,
+            CONFIRMATIONS,
+            [EVM_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
         ],
     ],
     SOL: [
         [
-            Contracts.SOL.arbSep,
+            Contracts.SOL.sepolia,
             Contracts.SOL.solana,
-            [['LayerZero Labs'], []], // [ requiredDVN[], [ optionalDVN[], threshold ] ]
-            [15, 32], // [dest to src confirmations, src to dest confirmations]
-            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS], // dest enforcedOptions, src enforcedOptions
+            DVNS,
+            CONFIRMATIONS,
+            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
+        ],
+    ],
+    JITOSOL: [
+        [
+            Contracts.JITOSOL.sepolia,
+            Contracts.JITOSOL.solana,
+            DVNS,
+            CONFIRMATIONS,
+            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
         ],
     ],
 }

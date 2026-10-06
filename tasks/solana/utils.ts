@@ -17,10 +17,16 @@ import {
     TASK_LZ_OAPP_CONFIG_GET,
 } from '@layerzerolabs/ua-devtools-evm-hardhat'
 
-export const findSolanaEndpointIdInGraph = async (
+/**
+ * Solana endpoint in the graph, or null when the configuration is EVM-only.
+ *
+ * Wiring only needs a Solana keypair when a Solana pathway is actually being configured, so callers
+ * that can handle an EVM-only graph should use this rather than the throwing variant below.
+ */
+export const findSolanaEndpointIdInGraphOrNull = async (
     hre: HardhatRuntimeEnvironment,
     oappConfig: string
-): Promise<EndpointId> => {
+): Promise<EndpointId | null> => {
     if (!oappConfig) throw new Error('Missing oappConfig')
 
     let graph: OAppOmniGraph
@@ -55,7 +61,18 @@ export const findSolanaEndpointIdInGraph = async (
         if (solanaEid) return solanaEid
     }
 
-    throw new Error('No Solana Endpoint ID found. Ensure your OApp configuration includes a valid Solana endpoint.')
+    return null
+}
+
+export const findSolanaEndpointIdInGraph = async (
+    hre: HardhatRuntimeEnvironment,
+    oappConfig: string
+): Promise<EndpointId> => {
+    const solanaEid = await findSolanaEndpointIdInGraphOrNull(hre, oappConfig)
+    if (solanaEid == null) {
+        throw new Error('No Solana Endpoint ID found. Ensure your OApp configuration includes a valid Solana endpoint.')
+    }
+    return solanaEid
 }
 
 /**
@@ -98,9 +115,7 @@ export const findAllSolanaContractsInGraph = async (
  * Load all Solana deployments from disk for a given endpoint.
  * Returns a map of OFT store address -> { programId, token }
  */
-export const loadAllSolanaDeployments = (
-    eid: EndpointId
-): Map<string, { programId: string; token: string }> => {
+export const loadAllSolanaDeployments = (eid: EndpointId): Map<string, { programId: string; token: string }> => {
     const outputDir = path.join('deployments', endpointIdToNetwork(eid))
     const deployments = new Map<string, { programId: string; token: string }>()
 

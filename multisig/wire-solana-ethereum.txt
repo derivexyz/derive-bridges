@@ -1,0 +1,376 @@
+Solana-side wiring for layerzero.config.ts
+Generated 2026-09-30T03:40:55.792Z against solana-mainnet. NOT SENT.
+
+Admin / delegate (signer of every instruction below): H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94
+RUNBOOK - wiring SOL and jitoSOL between Solana and the Ethereum hub
+------------------------------------------------------------------------------------------------
+The Solana transactions below have NOT been sent. The Ethereum side is already wired (2026-09-30):
+peers, libraries, 3-of-3 DVNs (LayerZero Labs, Horizen, Canary) and enforced options.
+  SOL     0xb5EaD284CD00fD0EB37E84327a4ee781172A07D6  (Solana OFT store 9iPYJoMdWyQsYw5xB2v5heqPNZL2w13xUecaMeRpxRZJ)
+  JITOSOL 0xc2908Db337AA16fB22b01bd4e8fF91460b23fF4B  (Solana OFT store 9aeaRHgETzGgd4c7i13eMte5ZMMceRi1n2Veegk3ZEJF)
+
+1. Fund the vault. It pays rent for every account init-config and setPeer create, and holds only
+   0.001 SOL today. Send ~0.1 SOL to H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94.
+2. Execute the Solana transactions below through the Squads multisig, in order: init-config (#1-#2)
+   must land before wire (#3-#14).
+3. DONE - the Ethereum side was wired from the EVM deployer with:
+     DOTENV_CONFIG_PATH=.env.mainnet npx hardhat lz:oapp:wire --oapp-config layerzero.config.ts \
+       --skip-connections-from-eids 30168
+   Until 1-2 land, anything sent Ethereum -> Solana would arrive at stores with no Ethereum peer and
+   sit unexecuted (retryable once wired). The hub tokens have no supply until seeded, so none can be.
+4. Check nothing is left, both sides:
+     DOTENV_CONFIG_PATH=.env.mainnet npx hardhat lz:oapp:wire --oapp-config layerzero.config.ts --assert
+5. Seeding the frozen Derive supply (lz:seed:solana-tokens) is separate and not covered here.
+
+If the Solana state changes before this runs, regenerate rather than edit:
+  DOTENV_CONFIG_PATH=.env.mainnet npx hardhat lz:oft:solana:export-wire-txs --oapp-config layerzero.config.ts \
+    --admin H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 --output multisig/wire-solana-ethereum.txt
+------------------------------------------------------------------------------------------------
+
+Execute in order. Each entry lists its instructions and a base58 transaction for Squads' import;
+the blockhash inside it is stale by the time you read this, so Squads re-signs it fresh.
+
+====================================================================================================
+STEP: init-config (2 transactions)
+====================================================================================================
+
+#1 [SOL] Initializing OFT config for eid 30101 (ETHEREUM_V2_MAINNET)
+  OFT store: 9iPYJoMdWyQsYw5xB2v5heqPNZL2w13xUecaMeRpxRZJ
+  instruction 1: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    tE493DKLJDyVJtnLhDfGNkQkxsoT5nNfMR6U5eCJsjD
+    526PeNZfw8kSnDU4nmzJFVJzJWNhwmZykEyJr5XWz5Fv
+    2XgGZG4oP29U3w5h4nTk1V2LFHL23zKDPJjs3psGzLKQ
+    7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    2XgGZG4oP29U3w5h4nTk1V2LFHL23zKDPJjs3psGzLKQ
+    B3YhpWPGY68wUntmYFAKs6Nj8ggTfpBjr1WXPTRSnGw7 (writable)
+    A2SKXo5tEMkDqYtWFEKP4CysyQRsLQUu5AxEQGn2Zsnd (writable)
+    11111111111111111111111111111111
+    data (hex): 17eb73e8a86001e78177cb5ce8e1e7e72f317b18231ca4cdce3faec3ecaf18ab97fb1d523a5fb27995750000
+  instruction 2: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    tE493DKLJDyVJtnLhDfGNkQkxsoT5nNfMR6U5eCJsjD
+    BV9b7M8BqgbaEsuGcr5pBuFgcSwW5FyjWzt344tGVWkE (writable)
+    11111111111111111111111111111111
+    data (hex): 9c18eb7849c190138177cb5ce8e1e7e72f317b18231ca4cdce3faec3ecaf18ab97fb1d523a5fb27995750000
+  instruction 3: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    tE493DKLJDyVJtnLhDfGNkQkxsoT5nNfMR6U5eCJsjD
+    AGfsXhRfYX5fCVyCvug5Jy79aA1atGgFSctiURAHcwMm (writable)
+    11111111111111111111111111111111
+    data (hex): c57251642de924e68177cb5ce8e1e7e72f317b18231ca4cdce3faec3ecaf18ab97fb1d523a5fb27995750000
+  base58 transaction: R1skTPrnLQL7Hg9BPsxT1PwcbSD3LPQPWm83qF33iTNZ7dLzH7TA5cdRb92gJRfy94zJqm3xNrJKJGh3rDHHbhiYRmSZLNNpknqjJuhHqWunz7ASR767FKkFSEVXtdmp4bSt4mYdHBS6E9fMVWktuxrZJjM8nYD7pqpCM1AeZ268XSdPvxW7igdbPctVgAtXwdpq7pwF5DcNp5eY1ve358vKqVkiZ5FC1N18Kikkt6qAMKmZ4aceffwjLx83Fkwn3GWTXNPZztE9wyQ78aoV91EtPTjHV5axugWroGgxx1RhcLPEx4TtKrvLGr59JiSYtKduTZP6qFfYtGdKm5BNBFRGxmjZNqWmjQ2KRnrtmRjMwuoUueqNfy8TsXba3a4SpaSC4YUjZAhavwhcjQgkBmL8hbQ6hSBXLCaPXju2mif9TiWnQUR8BhUvbmcZ8AZqCs49QtxbWiQjyjdrAzJi9eWs5tpxqvQjqJdcoX67XifV7dE8tdLLEJWwT8zr4S5RzsGFw172mv5rvX6kV1pDU6jsdVCsjhey92vC5iusystSDzW6iZr6RDh3uq17YgeRZBiERkSgDruas3Qd6J1pUyYGHtS52PevSr5DBKctbvJ7rFUPgTJLLKdq7M3AA6CqTnNZVHh4sSqvABRs8JBpGT8t6uNUSfRsyda5QHo9xwKLZFKgcJ56GuuNSBXrUVxPzwVujBU7pH34g9VUK6b8RczZ2y1Hcm5LsNoPHRyXdySPuJppcbQCbx2nRqdNFyL2wDDwDQcHaTc8ktVtNV6Qe4vHCMZajZxJ5NYo9dxRyGqMp6S8x6FYhnadSNqucmtdedaF
+
+#2 [JITOSOL] Initializing OFT config for eid 30101 (ETHEREUM_V2_MAINNET)
+  OFT store: 9aeaRHgETzGgd4c7i13eMte5ZMMceRi1n2Veegk3ZEJF
+  instruction 1: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    8qZXpadzip6CKZVXY6Euw9aWbZt1DyQW8cwMNBQSYpsf
+    526PeNZfw8kSnDU4nmzJFVJzJWNhwmZykEyJr5XWz5Fv
+    2XgGZG4oP29U3w5h4nTk1V2LFHL23zKDPJjs3psGzLKQ
+    7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    2XgGZG4oP29U3w5h4nTk1V2LFHL23zKDPJjs3psGzLKQ
+    41pvjdKkHcmAJNVh62a9WQCyppoqWfz51GyAEFogf4RZ (writable)
+    APga81fxPHR5uebUaV5q7BG3SuwD6TN2myoqai9fcPvJ (writable)
+    11111111111111111111111111111111
+    data (hex): 17eb73e8a86001e77f7c264eb5dce87bcef833ff0f8e004265deac7260f44305765754ff6fa430fc95750000
+  instruction 2: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    8qZXpadzip6CKZVXY6Euw9aWbZt1DyQW8cwMNBQSYpsf
+    9brctgp7dxJBjhjRrnuaLDQiwGDRrFQocpKbveC8oowT (writable)
+    11111111111111111111111111111111
+    data (hex): 9c18eb7849c190137f7c264eb5dce87bcef833ff0f8e004265deac7260f44305765754ff6fa430fc95750000
+  instruction 3: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    8qZXpadzip6CKZVXY6Euw9aWbZt1DyQW8cwMNBQSYpsf
+    9keJNDiwmhFzbK6pu3YsfZFDBmioZdeGX2tGamNUhhPF (writable)
+    11111111111111111111111111111111
+    data (hex): c57251642de924e67f7c264eb5dce87bcef833ff0f8e004265deac7260f44305765754ff6fa430fc95750000
+  base58 transaction: R1skTPrnLQL7Hg9BPsxT1PwcbSD3LPQPWm83qF33iTNZ7dLzH7TA5cdRb92gJRfy94zJqm3xNrJKJGh3rDHHbhiYRmSZLNNpknqjJuhHqWunz7ASR767FKkFSEVXtdmp4bSt4mYdGLbUWJVqqCnkg9yNsMxNR4TubREKJHVuyiK9ct36mZoBFNKH4padGzCKtzqLrZJWoBA1qRBGvxjXQsGXRwEeZ54t7v5f98SVfX2QxgpCZyQUgqZEtyhogy1aqXCi6QYCZRetFpDKuJUoDxuSNfbA4ntqafYAZZDDLYh1pg4md4ynQbzBscwfqKBcAKPzXnwjuGDwB5rPorsTwxhM77vCg3ocywyzTqu1bjFP8NSuWt14oGupzcgT798Wey4FWZvNUihHDEm2xHfgHoDoy5gCzYkwsEaYjw9yqYEZFadiPpFHkPeCqWHCgrefaV3KjRqDxZuTnePAXUMfesRajDZNrjvVmtv6rpLUSfcwUyhVFXW41RndEDccdmkmcXdmzxMzFpRy1drN62ER4pXrVL8bEsQ3P9QtCnChv1Doh1noN2tw8FdVhd6BfzVLeBJ7M3vGNzmf81hCBK2P9zBGYTJR1fXh4aSt5CByNjZ5QtKBfvL5G6hPipmQD45swgzbdDwtmUxkQ1RrZmkhK2hSamrk6SE7d1VM3KmcrJomU3YKpecHk9Wmb4TDyz5NQnX9moWUBwekub4caaQtB63dPsoNtU2mtwDKNzgeXwAxVQWB4XrNuroduQaz6EGkipr6nUcRNah36XnCpa9wNQsvvyHXoPwfK8v1yvSBoeCtfi1b2UDff5hUiQzDrEdSoW55
+====================================================================================================
+STEP: wire (12 transactions)
+====================================================================================================
+
+#3 [SOL] Setting peer for eid 30101 (ETHEREUM_V2_MAINNET) to address 0x000000000000000000000000b5ead284cd00fd0eb37e84327a4ee781172a07d6 H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94
+  OFT store: 9iPYJoMdWyQsYw5xB2v5heqPNZL2w13xUecaMeRpxRZJ
+  instruction 1: program 46KaqgEC2gkZPQaZF1x71z8G2SiAGyezZ5aTu1dr4tYf
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    B1XUMikZiZsKErtDm8YfYGsd8iPchFiTvdpNKsVmQGHd (writable)
+    9iPYJoMdWyQsYw5xB2v5heqPNZL2w13xUecaMeRpxRZJ
+    11111111111111111111111111111111
+    data (hex): 4fbba8398b8c5d2f9575000000000000000000000000000000b5ead284cd00fd0eb37e84327a4ee781172a07d6
+  instruction 2: program 46KaqgEC2gkZPQaZF1x71z8G2SiAGyezZ5aTu1dr4tYf
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    B1XUMikZiZsKErtDm8YfYGsd8iPchFiTvdpNKsVmQGHd (writable)
+    9iPYJoMdWyQsYw5xB2v5heqPNZL2w13xUecaMeRpxRZJ
+    11111111111111111111111111111111
+    data (hex): 4fbba8398b8c5d2f9575000002020000000003020000000003
+  instruction 3: program 46KaqgEC2gkZPQaZF1x71z8G2SiAGyezZ5aTu1dr4tYf
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    B1XUMikZiZsKErtDm8YfYGsd8iPchFiTvdpNKsVmQGHd (writable)
+    9iPYJoMdWyQsYw5xB2v5heqPNZL2w13xUecaMeRpxRZJ
+    11111111111111111111111111111111
+    data (hex): 4fbba8398b8c5d2f9575000001010000
+  instruction 4: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    tE493DKLJDyVJtnLhDfGNkQkxsoT5nNfMR6U5eCJsjD
+    ARwEhqjg5nhJpdQJBeiiX1VrwXzcRepQ6BjeSFC2e41p (writable)
+    BGzif8XVwkpqHtAXcXXbxJgUBPWT8b3r3qd84uHjMuJG (writable)
+    11111111111111111111111111111111
+    data (hex): ccab10d6b6bf1bc48177cb5ce8e1e7e72f317b18231ca4cdce3faec3ecaf18ab97fb1d523a5fb27995750000000000000000000000000000b5ead284cd00fd0eb37e84327a4ee781172a07d6
+  base58 transaction: 2PqqSX8r5idcjzkR4hh3n5iPDAYntZjUqVMohyR4jQB83HabdYGgbCPXRFETKib3MZAcC5gFdqqrTogeQkHrkxXQZ7F92DVT81K9MaA66NuKziNcZh31nAY2RiHGQe1xL41KM4FPXdLtAY8DvNYoHhkMRzb818r3QzJFLqDtsuvQmEG9r5EpiGxnbdsx5rsJdd1JnHmmVcr2mLohtxiqXgjjKK65hvfmdVUYYpZiBWhMuSMRsGJA1ZEQnrFv4Kz7onBsw7yWAw8vfFzAb5cs7GucQKJSwovLxd17BPD5guwDkF9pLF9uTe5AQX3Voh5NVEK2kMZ5G9UzLcEYZQt45z8q1hjyWug6oepZVcRCXFVzSNrymTXTuR9nYPhtYGSahMugMndmvfvcwVhKj4dKhp9NBvpTmiqx7JigzZufG8od12XyRzzBX6mxkhwfcL1MaRq5EKddS4DVYtsXRwpkC4F8MroHm6e17oiQMG9Qw3n5zCBcJ7fHX9sr2f926SntE6xPCaaihyKKJzvgR99KKJuBgkgZN55Lrp3Mhv9NLbs7QMcHwvHe4F8TCMsDWBC2jkHnySAGNAqTGGeZU5httqkTEKAei9faxEUiHM7ZLBfp1CoxxF2UtVz5mUUqRfUGexNWV4B8cgnfjN4QzG6cNgX1muv1dPe4qNkQyAR6HAqzuMQPA2hX4UiZwbscJACV9irvgYf5c1mKNE8tD9jTnYzTLmTjRHxvicrREyiV2ZkXa519owY8JiPJYWqkbquTLiYnLQ7nTKPbe1NPLNQURNRVw
+
+#4 [JITOSOL] Setting peer for eid 30101 (ETHEREUM_V2_MAINNET) to address 0x000000000000000000000000c2908db337aa16fb22b01bd4e8ff91460b23ff4b H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94
+  OFT store: 9aeaRHgETzGgd4c7i13eMte5ZMMceRi1n2Veegk3ZEJF
+  instruction 1: program 46KaqgEC2gkZPQaZF1x71z8G2SiAGyezZ5aTu1dr4tYf
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    ErFJSV3WrbV4icGqU2VPPkKUwG7GkochN8ijS6bYQH2h (writable)
+    9aeaRHgETzGgd4c7i13eMte5ZMMceRi1n2Veegk3ZEJF
+    11111111111111111111111111111111
+    data (hex): 4fbba8398b8c5d2f9575000000000000000000000000000000c2908db337aa16fb22b01bd4e8ff91460b23ff4b
+  instruction 2: program 46KaqgEC2gkZPQaZF1x71z8G2SiAGyezZ5aTu1dr4tYf
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    ErFJSV3WrbV4icGqU2VPPkKUwG7GkochN8ijS6bYQH2h (writable)
+    9aeaRHgETzGgd4c7i13eMte5ZMMceRi1n2Veegk3ZEJF
+    11111111111111111111111111111111
+    data (hex): 4fbba8398b8c5d2f9575000002020000000003020000000003
+  instruction 3: program 46KaqgEC2gkZPQaZF1x71z8G2SiAGyezZ5aTu1dr4tYf
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    ErFJSV3WrbV4icGqU2VPPkKUwG7GkochN8ijS6bYQH2h (writable)
+    9aeaRHgETzGgd4c7i13eMte5ZMMceRi1n2Veegk3ZEJF
+    11111111111111111111111111111111
+    data (hex): 4fbba8398b8c5d2f9575000001010000
+  instruction 4: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    8qZXpadzip6CKZVXY6Euw9aWbZt1DyQW8cwMNBQSYpsf
+    2PvuL2JuggJDnPpSMAWDbA5zfBcnhJTMPPvsMYjAnRt7 (writable)
+    9rTGEtr15Nk4EeTCMTXA8wUj9Zn85p9HeGtKrCAN2gKk (writable)
+    11111111111111111111111111111111
+    data (hex): ccab10d6b6bf1bc47f7c264eb5dce87bcef833ff0f8e004265deac7260f44305765754ff6fa430fc95750000000000000000000000000000c2908db337aa16fb22b01bd4e8ff91460b23ff4b
+  base58 transaction: 2PqqSX8r5idcjzkR4hh3n5iPDAYntZjUqVMohyR4jQB83HabdYGgbCPXRFETKib3MZAcC5gFdqqrTogeQkHrkxXQZ7F92DVT81K9MaA66NuKziNcZh31nAY2RiHGQe1xL41KM4FPXZZ7eJLdEwyJmcaCgVTANLm837c4rfLymLGfCwrP4wydftGgDDcTtetJKfrUGQCAbbT78YzC1UUyVBMFmrQx8moLVmZBdsbdEER1rpqTAsxCtt4pRoVbmCYdNqFweoAoMJZAWpFVZgjCT7xT7V71eAZBeMwh47NetMhoD5bbmryyZ8VcNY581wERCXeAE3TWbSHPb3u1Vq37VBcHQ8h4miJNcgt3ffRWBraykH626dUoEojuKkVthnNfFAHdKcNfvqLhUedzfQ6NTQXWH4rrmvab7aVSyB23QhGUro73HJhnfZpCy3pDQJcVkLDAUaRA5C8ZdYdGJN1yMxsHqM8sTCta877q7vWhgDRgavd2wEqe3pFFfAfLbSByfH6KwqqRWeQ3pTwVS63MLLBC5yyW7CJDxvBhhEwCQfz1wy5zSV4rUcd2CgoJaNaxSt2q2w2fyVzhSf2ihnGyXxeEfiDmN6MyrRkMxoM7tYPHBoKPrnozLM8Zcref8AW4J5m2FS75kBzqjuLFu1NaKetG9mJQLqgohQ2j8BVkHADff3a52ck3q6BTYRzWVJRofyruLK5Cu9WhMXMJsSn4pfBcn6ZFYNsKABzKW3A3bJSbwFHeH8g9vXvbGbFFW3QnP445Humxv9qQpez9g5ugocipi
+
+#5 [76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6] Setting send library for eid 30101 (ETHEREUM_V2_MAINNET) and OApp 9iPYJoMdWyQsYw5xB2v5heqPNZL2w13xUecaMeRpxRZJ to 7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+  OFT store: 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+  instruction 1: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    tE493DKLJDyVJtnLhDfGNkQkxsoT5nNfMR6U5eCJsjD
+    BV9b7M8BqgbaEsuGcr5pBuFgcSwW5FyjWzt344tGVWkE (writable)
+    526PeNZfw8kSnDU4nmzJFVJzJWNhwmZykEyJr5XWz5Fv
+    F8E8QGhKmHEx2esh5LpVizzcP4cHYhzXdXTwg9w3YYY2
+    76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    data (hex): fb764e9e869581058177cb5ce8e1e7e72f317b18231ca4cdce3faec3ecaf18ab97fb1d523a5fb2799575000016b7830c3f8a44c810ca87de56e032889c358ec75d4732bf7361862658acb2af
+  base58 transaction: 3S2LeemSYnf9TJVbHf44dgdQ39gZUFW5UeyXtxWgxNoymSEkLJ3UShzvKvgV3iLiNR4bffxMRyLA4UFgiXDwHsBbdK5Q3SWpouAB3doHvMu9GFbBiqUvE6wiX4UZUYuS9BCoaCxCHGuNByu671zXDosDXF5P1cxtucDMtyZSqZMMBqrb3Mfc6CwwTCBorzz3Vqk5cfHygU9k1xWd91dvd2LvgGoXHCRQLEazt23wUNTBprwWFBLBNkLJHShAoVwRr3f9owwBEU5dxBg7ZWNcgq8hz5rGUHFPEBdQJczuvuw4GQqsUWr3eK7SQuagYhBJuVZVgqEyCusyeT5RtQN6ueaFVsVtYzcofDeZ4ts6QdARxgxVZpYYoGSYw4LUHjyfPVSfGcu1XZB9opHLwkGeDRdx9g36CxrSWXkfWnjXhcEv69h3AnC8kVH5T7YKqcKkoveZ2ZAdKogcy2eAvUQEdBVBdRMtUrCf3qMg1bn7xF5az58Sm3Q1eweShWzHsuVibWAKG
+
+#6 [76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6] Setting send library for eid 30101 (ETHEREUM_V2_MAINNET) and OApp 9aeaRHgETzGgd4c7i13eMte5ZMMceRi1n2Veegk3ZEJF to 7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+  OFT store: 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+  instruction 1: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    8qZXpadzip6CKZVXY6Euw9aWbZt1DyQW8cwMNBQSYpsf
+    9brctgp7dxJBjhjRrnuaLDQiwGDRrFQocpKbveC8oowT (writable)
+    526PeNZfw8kSnDU4nmzJFVJzJWNhwmZykEyJr5XWz5Fv
+    F8E8QGhKmHEx2esh5LpVizzcP4cHYhzXdXTwg9w3YYY2
+    76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    data (hex): fb764e9e869581057f7c264eb5dce87bcef833ff0f8e004265deac7260f44305765754ff6fa430fc9575000016b7830c3f8a44c810ca87de56e032889c358ec75d4732bf7361862658acb2af
+  base58 transaction: 3S2LeemSYnf9TJVbHf44dgdQ39gZUFW5UeyXtxWgxNoymSEkLJ3UShzvKvgV3iLiNR4bffxMRyLA4UFgiXDwHsBbdK5Q3SWpouAB3doHvMu9GFbBiqUvE6wiX4UZUYuS9BCoaCxCHFMTJyJHYWzexE2JFDLvL87Kx47ZbVUFt2No6eqqXdbQEXfj7QSeiv1YaeuNgz6L5aTUhZw1Cqy55bK5tKfsv4Wr9MTtXHQecyXsK9CnjbrZ1gAKhcMPuN6VYvz5pbcL7enM7TWYzdYo16eTUPEpLR1TYfPBvyBSmXFDHQEMicZtriNntNraGYZs5o8DJ7MVq2utGAXCRS25Q52UhYwxk2uaDQgAep6FnXj6DHGAtcM3UYskELWWa4VUYcbg2Nd2ohvJDMcjm4vw22aNJDmcsLP8XLnqNw9BuZ5o18pYAdqZkte36QF5btJ5TmwDhnWCNF4j8YNtPnPcrWnMb4X1wmiiXjd4dCQqSEbUyFCzzbfG7cViM6tJNFqYvmvWS
+
+#7 [76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6] Setting receive library for eid 30101 (ETHEREUM_V2_MAINNET) and OApp 9iPYJoMdWyQsYw5xB2v5heqPNZL2w13xUecaMeRpxRZJ to 7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+  OFT store: 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+  instruction 1: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    tE493DKLJDyVJtnLhDfGNkQkxsoT5nNfMR6U5eCJsjD
+    AGfsXhRfYX5fCVyCvug5Jy79aA1atGgFSctiURAHcwMm (writable)
+    526PeNZfw8kSnDU4nmzJFVJzJWNhwmZykEyJr5XWz5Fv
+    F8E8QGhKmHEx2esh5LpVizzcP4cHYhzXdXTwg9w3YYY2
+    76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    data (hex): dfacb469a5a193e48177cb5ce8e1e7e72f317b18231ca4cdce3faec3ecaf18ab97fb1d523a5fb2799575000016b7830c3f8a44c810ca87de56e032889c358ec75d4732bf7361862658acb2af0000000000000000
+  base58 transaction: 2o7WjzfD56SwBBTXQtaocjqN2AKW5vvsdamU6uzHMxcm5ndSdNCy5fpfPXszMRXSZxSpwJsYkivW8FQbHJ6vtcS2ubCoBS4W9Jw59iEHUU6M9XfpAAtH8j28cd25eaiBvmPmPJYR2v3LJGMDYYbiYqxXPXhroHHpLLkBLUv2J7FXaaFZJ52yTaW1bGyAAMoSzhwUmuJpdU4ARew3MUqUxm6bD6znisqhRx4r3ZXzLBcA2PgpkaM57p7iEPmVurg3yKfcuP5WUsx2NAtcKHDR1UUTp8F68tn2rtsJ7DQHov7PHQjKaNcBUMDpjfnKvSQkWN798aJ41huFMorhbo3yuZkF6ni5c2WQghUEXv7hVENkGkSPopyrY1tEX5UiPKj17yFYxMcrGKHTqmkrbLaRoaqyy9G1Eh1WgctP8kvArUKaz7V8hq4UyaBGwSgTnefSPSDZNdkL7bsb8YpChdh23cMNCkhbtYvism1AjjLne7Ug5gUV1LPwXwDF3KofPh5Hir4iDGucyJgqWavs
+
+#8 [76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6] Setting receive library for eid 30101 (ETHEREUM_V2_MAINNET) and OApp 9aeaRHgETzGgd4c7i13eMte5ZMMceRi1n2Veegk3ZEJF to 7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+  OFT store: 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+  instruction 1: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    8qZXpadzip6CKZVXY6Euw9aWbZt1DyQW8cwMNBQSYpsf
+    9keJNDiwmhFzbK6pu3YsfZFDBmioZdeGX2tGamNUhhPF (writable)
+    526PeNZfw8kSnDU4nmzJFVJzJWNhwmZykEyJr5XWz5Fv
+    F8E8QGhKmHEx2esh5LpVizzcP4cHYhzXdXTwg9w3YYY2
+    76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    data (hex): dfacb469a5a193e47f7c264eb5dce87bcef833ff0f8e004265deac7260f44305765754ff6fa430fc9575000016b7830c3f8a44c810ca87de56e032889c358ec75d4732bf7361862658acb2af0000000000000000
+  base58 transaction: 2o7WjzfD56SwBBTXQtaocjqN2AKW5vvsdamU6uzHMxcm5ndSdNCy5fpfPXszMRXSZxSpwJsYkivW8FQbHJ6vtcS2ubCoBS4W9Jw59iEHUU6M9XfpAAtH8j28cd25eaiBvmPmPJYR2uj6ZN24EwKHGvmmdckAd4zbQuVJNY2u1W7t2W8FGzzjbnVe3PnktvFhFStVNDrY3JYQ6bV32rYi9gcyuUrEEupaE7bEe5w9TKj6tdqpgeiwpQB7yrmX5wWaJ3kskzLei8zZnyRP3hwRBpQDG68Fff61G8DWfmvnqhusDvgDWFr5NX7ddGp57kPwJhckXGtfS9yAFdbCvnrJY2HyRDtmGnFyksqfH6CbP6RWWGt7oABXj3AkvQ5i7RfzJnHS5azNKw8X1QGSLeJXkkTVBVYqGacqdt5N53po8SdabPd433bo4AByEbz1cDrdyLbzwpUUJHoAG4pEgVS81mQvyrFen3zdzdygaupMxvRbHdepaAZsTMJNTXcV9AQSbFEf3Wafz4Md1rco
+
+#9 [76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6] Setting config for ULN 7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH to [
+	{
+		"eid": 30101,
+		"configType": 2,
+		"config": {
+			"confirmations": "32",
+			"optionalDVNThreshold": 0,
+			"requiredDVNs": [
+				"4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb",
+				"7jMeX5mzXnSSKYd8DxBDP4xMnkNFZZZm5W28FWUTbwU3",
+				"HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX"
+			],
+			"optionalDVNs": [],
+			"requiredDVNCount": 3,
+			"optionalDVNCount": 0
+		}
+	}
+]
+  OFT store: 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+  instruction 1: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    tE493DKLJDyVJtnLhDfGNkQkxsoT5nNfMR6U5eCJsjD
+    526PeNZfw8kSnDU4nmzJFVJzJWNhwmZykEyJr5XWz5Fv
+    2XgGZG4oP29U3w5h4nTk1V2LFHL23zKDPJjs3psGzLKQ
+    7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+    2XgGZG4oP29U3w5h4nTk1V2LFHL23zKDPJjs3psGzLKQ
+    B3YhpWPGY68wUntmYFAKs6Nj8ggTfpBjr1WXPTRSnGw7 (writable)
+    A2SKXo5tEMkDqYtWFEKP4CysyQRsLQUu5AxEQGn2Zsnd (writable)
+    Ag8FRwGc1ZXDozyr3TWcaHSZUoiiDjmGwGZ32zvir3yD
+    ohDLwrcZf7YTgwWUjFpp3gUggTcFsXAZroxJZyQ12Xy
+    7n1YeBMVEUCJ4DscKAcpVQd6KXU7VpcEcc15ZuMcL4U3
+    7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+    data (hex): 6c9e9aafd46234428177cb5ce8e1e7e72f317b18231ca4cdce3faec3ecaf18ab97fb1d523a5fb27995750000020000007300000020000000000000000300000300000033cdb9fb56d28a2f028cbb36c254a7d54c92f0419b53e44ddcc0a5c373f854f263ffdc6cb15c7f9c8d1036120182e4f48f9ce5919dda1defd954f8655097bdc8f3ea64a20ecedc882c28a0ba115a3a338ce2bb0d746d123c5b4abbdbead761f200000000
+  base58 transaction: AfTu1vJqHcMBNtL7A1dTjJx8V9t9fGHHnJstYpgQZcXmPX18rNfh2qkdBjTLVBeXSj21JqsLSERobz8t4EZt8eaNzT6DdqrK1SYmcDs5vqymFRUh3yoHnfgadNRPyRpkSG9GprkNeJcemN2xxcDdTRWTFBazhJSjY9nqxuGdEwMq5Sj23RGcPKmNBJK2Enu6dFGQjr3WspM3UZSW5VFCATEvvEq82CybSV2pEbkDx8iCMGsNo26zidWrqVs86SgPeW5NLjGE3sX2RwfGDm1Vq6gDL4tNuNqhE3rub4tRVxDiomKVDfsR7VEisxddaCaX7GjPqt45fsYAoGvde5ED8sjyxkX9tCWo6qDX3xd3VaDR5w89xGw3QtqthMVeF14VYfUR996o7bnaV4VV59V5oJyNvWqdsTMGn64XbyXM2V7wuGhDZqk18DCWvow2EYZS8Df3m1GUZi3BHWgxxygx2zMskkDDxEbsaEkQf1epcaBM7jMWZpjwStDyHTBwSCqH1W4hg6xKRXgoWSKPk9a9UmasDRFx3E24mJdSyz7a7Wbq1Ek9B6cStz9ziZ11UzHMYqhHrwvXqhNeiqNv6AQxUCyfABzrERtC1c1JLvXTXF2ttvtf2PvopG8p2vNWFMHByf2kEeUBS2QhGGhRKaCn7U2S7eG8rcaVBPFVrx6kLADznPgaLgMVP3xxuZf6MBFp5yFtiMzxZkn3EhurSKCrC3zzfv1utHN8X91fAC4xShPT3Aht8fHZYXBjfogAmoEfkE9xgXgpQ6CAUXwmwdYCMN9jDYc3nvjwrG5A4g1PyB3QvaCoDTwjQGTPPeaamm2UnJXD2JyYYy5PBZ9UwXC4WhDe6nDAuCLCzYXKm
+
+#10 [76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6] Setting config for ULN 7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH to [
+	{
+		"eid": 30101,
+		"configType": 2,
+		"config": {
+			"confirmations": "32",
+			"optionalDVNThreshold": 0,
+			"requiredDVNs": [
+				"4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb",
+				"7jMeX5mzXnSSKYd8DxBDP4xMnkNFZZZm5W28FWUTbwU3",
+				"HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX"
+			],
+			"optionalDVNs": [],
+			"requiredDVNCount": 3,
+			"optionalDVNCount": 0
+		}
+	}
+]
+  OFT store: 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+  instruction 1: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    8qZXpadzip6CKZVXY6Euw9aWbZt1DyQW8cwMNBQSYpsf
+    526PeNZfw8kSnDU4nmzJFVJzJWNhwmZykEyJr5XWz5Fv
+    2XgGZG4oP29U3w5h4nTk1V2LFHL23zKDPJjs3psGzLKQ
+    7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+    2XgGZG4oP29U3w5h4nTk1V2LFHL23zKDPJjs3psGzLKQ
+    41pvjdKkHcmAJNVh62a9WQCyppoqWfz51GyAEFogf4RZ (writable)
+    APga81fxPHR5uebUaV5q7BG3SuwD6TN2myoqai9fcPvJ (writable)
+    Ag8FRwGc1ZXDozyr3TWcaHSZUoiiDjmGwGZ32zvir3yD
+    ohDLwrcZf7YTgwWUjFpp3gUggTcFsXAZroxJZyQ12Xy
+    7n1YeBMVEUCJ4DscKAcpVQd6KXU7VpcEcc15ZuMcL4U3
+    7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+    data (hex): 6c9e9aafd46234427f7c264eb5dce87bcef833ff0f8e004265deac7260f44305765754ff6fa430fc95750000020000007300000020000000000000000300000300000033cdb9fb56d28a2f028cbb36c254a7d54c92f0419b53e44ddcc0a5c373f854f263ffdc6cb15c7f9c8d1036120182e4f48f9ce5919dda1defd954f8655097bdc8f3ea64a20ecedc882c28a0ba115a3a338ce2bb0d746d123c5b4abbdbead761f200000000
+  base58 transaction: AfTu1vJqHcMBNtL7A1dTjJx8V9t9fGHHnJstYpgQZcXmPX18rNfh2qkdBjTLVBeXSj21JqsLSERobz8t4EZt8eaNzT6DdqrK1SYmcDs5vqymFRUh3yoHnfgadNRPyRpkSG9GprkNdxxsDUos7vRfsZoXwJbswqxy4C89sCJjNfpEidVMKuYUUyka5HXAbwLxHWxe4tbJNQYy6oRqLMXFAAYAvmV9seta1D3vUUxiksi2bZpGAgnUiSWsixeiR8ABWe86kVmjZE9WLSMHE9kCyZLoRa6jjguUHfThPmap48UnPPAAGMa9m9fAF8nmXFkUMUcdQLxjzzw9DCNXgH7Zfk3rahiGHoYn4xGZyM7r2qLjabZ6Tdz4kNBH26PS2TbzWsusHufXveHWU81JZoZm9rQW6kzVfKL25gbYisZ8eGeFYDB4A8CXs2cDY7Dpy912xghvxs5t4c4Chc2cU9kDNqYY5nKTHYGu4j5GZ2CLMovkKo9HpqEf4WoBj5N5onmhXRwAAaiASUkozTUme6Z5HrkVgq82qTxkFcTyK6EB8Q5nPakfWVTacnwCFkzRxocdU93DgTdwFk7h23kedgDVkxA6q9j1sAYh2M4a7GjXaZMuon2ePLyZdwJuPRrX4dgC6omNLmfJULdY5rK9weQPsh4iWioFsMoqNLQrGQmancbnBWtAoYkv4rr7hdihQ7sKeNUHwpEJsXUuZHQFzkvNm1Z6Cumd5bidJ1ofZsnimhoRiyo6gjTuouQXjdnpJA6HCP6s4kRnW6ynYXKuruRAb2DfnPWu6VmRuDAAwU78s2zi1Xt32Et8Q8epioLnKPVuHAjzDjM3KmiQvS7A8LPQ8jWBDkKLzb4yBMAAs
+
+#11 [76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6] Setting config for ULN 7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH to [
+	{
+		"eid": 30101,
+		"configType": 3,
+		"config": {
+			"confirmations": "15",
+			"optionalDVNThreshold": 0,
+			"requiredDVNs": [
+				"4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb",
+				"7jMeX5mzXnSSKYd8DxBDP4xMnkNFZZZm5W28FWUTbwU3",
+				"HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX"
+			],
+			"optionalDVNs": [],
+			"requiredDVNCount": 3,
+			"optionalDVNCount": 0
+		}
+	}
+]
+  OFT store: 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+  instruction 1: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    tE493DKLJDyVJtnLhDfGNkQkxsoT5nNfMR6U5eCJsjD
+    526PeNZfw8kSnDU4nmzJFVJzJWNhwmZykEyJr5XWz5Fv
+    2XgGZG4oP29U3w5h4nTk1V2LFHL23zKDPJjs3psGzLKQ
+    7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+    2XgGZG4oP29U3w5h4nTk1V2LFHL23zKDPJjs3psGzLKQ
+    B3YhpWPGY68wUntmYFAKs6Nj8ggTfpBjr1WXPTRSnGw7 (writable)
+    A2SKXo5tEMkDqYtWFEKP4CysyQRsLQUu5AxEQGn2Zsnd (writable)
+    Ag8FRwGc1ZXDozyr3TWcaHSZUoiiDjmGwGZ32zvir3yD
+    ohDLwrcZf7YTgwWUjFpp3gUggTcFsXAZroxJZyQ12Xy
+    7n1YeBMVEUCJ4DscKAcpVQd6KXU7VpcEcc15ZuMcL4U3
+    7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+    data (hex): 6c9e9aafd46234428177cb5ce8e1e7e72f317b18231ca4cdce3faec3ecaf18ab97fb1d523a5fb2799575000003000000730000000f000000000000000300000300000033cdb9fb56d28a2f028cbb36c254a7d54c92f0419b53e44ddcc0a5c373f854f263ffdc6cb15c7f9c8d1036120182e4f48f9ce5919dda1defd954f8655097bdc8f3ea64a20ecedc882c28a0ba115a3a338ce2bb0d746d123c5b4abbdbead761f200000000
+  base58 transaction: AfTu1vJqHcMBNtL7A1dTjJx8V9t9fGHHnJstYpgQZcXmPX18rNfh2qkdBjTLVBeXSj21JqsLSERobz8t4EZt8eaNzT6DdqrK1SYmcDs5vqymFRUh3yoHnfgadNRPyRpkSG9GprkNeJcemN2xxcDdTRWTFBazhJSjY9nqxuGdEwMq5Sj23RGcPKmNBJK2Enu6dFGQjr3WspM3UZSW5VFCATEvvEq82CybSV2pEbkDx8iCMGsNo26zidWrqVs86SgPeW5NLjGE3sX2RwfGDm1Vq6gDL4tNuNqhE3rub4tRVxDiomKVDfsR7VEisxddaCaX7GjPqt45fsYAoGvde5ED8sjyxkX9tCWo6qDX3xd3VaDR5w89xGw3QtqthMVeF14VYfUR996o7bnaV4VV59V5oJyNvWqdsTMGn64XbyXM2V7wuGhDZqk18DCWvow2EYZS8Df3m1GUZi3BHWgxxygx2zMskkDDxEbsaEkQf1epcaBM7jMWZpjwStDyHTBwSCqH1W4hg6xKRXgoWSKPk9a9UmasDRFx3E24mJdSyz7a7Wbq1Ek9B6cStz9ziZ11UzVsrzA6zsexh388EY3p6c4K7PmUpEn6ji5qgPTZSn4suvrY4SkS9K4eDrgk9Ao5k1zC9ub6WiZH64He53n3w44cKLp4yYJbZGNb8Cdk7EJNAsiX8EWtoDbmqWz68rruV4HHGAPLAEcwBxWuE5fdHc778tA9KuxRwCNcse6QMFLijKRMpX683bENCVZEx4qqrmjoKobSaKeNKR5WV8twpXYKgPWBAZomagtYSmc9pRS37qpog9rBkvVkonwJ82DwWmRMa1vj3PukiuWesL5JUrDvSUTZCha7fcx3j4yM1
+
+#12 [76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6] Setting config for ULN 7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH to [
+	{
+		"eid": 30101,
+		"configType": 3,
+		"config": {
+			"confirmations": "15",
+			"optionalDVNThreshold": 0,
+			"requiredDVNs": [
+				"4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb",
+				"7jMeX5mzXnSSKYd8DxBDP4xMnkNFZZZm5W28FWUTbwU3",
+				"HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX"
+			],
+			"optionalDVNs": [],
+			"requiredDVNCount": 3,
+			"optionalDVNCount": 0
+		}
+	}
+]
+  OFT store: 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+  instruction 1: program 76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    8qZXpadzip6CKZVXY6Euw9aWbZt1DyQW8cwMNBQSYpsf
+    526PeNZfw8kSnDU4nmzJFVJzJWNhwmZykEyJr5XWz5Fv
+    2XgGZG4oP29U3w5h4nTk1V2LFHL23zKDPJjs3psGzLKQ
+    7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+    2XgGZG4oP29U3w5h4nTk1V2LFHL23zKDPJjs3psGzLKQ
+    41pvjdKkHcmAJNVh62a9WQCyppoqWfz51GyAEFogf4RZ (writable)
+    APga81fxPHR5uebUaV5q7BG3SuwD6TN2myoqai9fcPvJ (writable)
+    Ag8FRwGc1ZXDozyr3TWcaHSZUoiiDjmGwGZ32zvir3yD
+    ohDLwrcZf7YTgwWUjFpp3gUggTcFsXAZroxJZyQ12Xy
+    7n1YeBMVEUCJ4DscKAcpVQd6KXU7VpcEcc15ZuMcL4U3
+    7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH
+    data (hex): 6c9e9aafd46234427f7c264eb5dce87bcef833ff0f8e004265deac7260f44305765754ff6fa430fc9575000003000000730000000f000000000000000300000300000033cdb9fb56d28a2f028cbb36c254a7d54c92f0419b53e44ddcc0a5c373f854f263ffdc6cb15c7f9c8d1036120182e4f48f9ce5919dda1defd954f8655097bdc8f3ea64a20ecedc882c28a0ba115a3a338ce2bb0d746d123c5b4abbdbead761f200000000
+  base58 transaction: AfTu1vJqHcMBNtL7A1dTjJx8V9t9fGHHnJstYpgQZcXmPX18rNfh2qkdBjTLVBeXSj21JqsLSERobz8t4EZt8eaNzT6DdqrK1SYmcDs5vqymFRUh3yoHnfgadNRPyRpkSG9GprkNdxxsDUos7vRfsZoXwJbswqxy4C89sCJjNfpEidVMKuYUUyka5HXAbwLxHWxe4tbJNQYy6oRqLMXFAAYAvmV9seta1D3vUUxiksi2bZpGAgnUiSWsixeiR8ABWe86kVmjZE9WLSMHE9kCyZLoRa6jjguUHfThPmap48UnPPAAGMa9m9fAF8nmXFkUMUcdQLxjzzw9DCNXgH7Zfk3rahiGHoYn4xGZyM7r2qLjabZ6Tdz4kNBH26PS2TbzWsusHufXveHWU81JZoZm9rQW6kzVfKL25gbYisZ8eGeFYDB4A8CXs2cDY7Dpy912xghvxs5t4c4Chc2cU9kDNqYY5nKTHYGu4j5GZ2CLMovkKo9HpqEf4WoBj5N5onmhXRwAAaiASUkozTUme6Z5HrkVgq82qTxkFcTyK6EB8Q5nPakfWVTacnwCFkzRxpBRQzkhht64BDJV9Hs5ZAmRW44L26dX8ujvnFFcuBxYp5Yz9Fcgk45wU3ApBUuD6ZeZ8fHa8WSYenpngASLdhzs3QnfUaVjkmNtjNfLVVUKMk1zq9FEXGvzXsyN7j4sbPv5NxEadGCnauvLKqcY7aLGy1dqt9SU6Bv69EcU6cux7i9V1DTsJzKickRKuJcywoQ8Ycu7aEDkQreHALmbbSFUtFFALoQeK9V7n9hqUy16YNFbGGGF6T1SB9ZawbMDeXX2iKPEu31T9K1TfiTTFYYzXi1goNLc2rtFKWGUX
+
+#13 [SOL] Setting enforced options to [
+	{
+		"eid": 30101,
+		"option": {
+			"msgType": 1,
+			"options": "0x00030100110100000000000000000000000000013880"
+		}
+	}
+]
+  OFT store: 9iPYJoMdWyQsYw5xB2v5heqPNZL2w13xUecaMeRpxRZJ
+  instruction 1: program 46KaqgEC2gkZPQaZF1x71z8G2SiAGyezZ5aTu1dr4tYf
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    B1XUMikZiZsKErtDm8YfYGsd8iPchFiTvdpNKsVmQGHd (writable)
+    9iPYJoMdWyQsYw5xB2v5heqPNZL2w13xUecaMeRpxRZJ
+    11111111111111111111111111111111
+    data (hex): 4fbba8398b8c5d2f95750000021600000000030100110100000000000000000000000000013880020000000003
+  base58 transaction: 7F4eCdp2uErMrDnuwhGjt24BjSy29pwH6gv3VFv8udmAqRgU5qoMPFSvu8ZybW5Kcpfcq29KbPEMvopyXthMf3PTd5EyNJR4oEHoeZAjJDsSrEedQw51hP729UjaLotdjCEVdK9X82taajmxisvhvmeKZNocVTUkygqBfGxrbDq7RWWnZeXHRDt8Wwzvxnvda9Lc6meWc2NZCKhNn2oV83YJqgMPek9Y116dGWMy7q9SJMnEVmN1f5jcsQ9JkKfJT163GEo38wx8aa9ZsSmSewEFRprQmkxXLQxTnMQj9WVSzB8KW7dAUk6cWuhpCZBR6arnDnuPf9RjSuFMDDegrzhYpJAGzbn9GARpU1RSrc4XqB7A1U7AZpNtHtxKZ8HkF4SkSNXXhiV6Fn5rNozoYvq1BZoGkPqB6V8D4qbm4cAN
+
+#14 [JITOSOL] Setting enforced options to [
+	{
+		"eid": 30101,
+		"option": {
+			"msgType": 1,
+			"options": "0x00030100110100000000000000000000000000013880"
+		}
+	}
+]
+  OFT store: 9aeaRHgETzGgd4c7i13eMte5ZMMceRi1n2Veegk3ZEJF
+  instruction 1: program 46KaqgEC2gkZPQaZF1x71z8G2SiAGyezZ5aTu1dr4tYf
+    H4xe9o1oqyuxX3E2JNXzrouUA758ThNr5ju5yvHhvx94 (signer,writable)
+    ErFJSV3WrbV4icGqU2VPPkKUwG7GkochN8ijS6bYQH2h (writable)
+    9aeaRHgETzGgd4c7i13eMte5ZMMceRi1n2Veegk3ZEJF
+    11111111111111111111111111111111
+    data (hex): 4fbba8398b8c5d2f95750000021600000000030100110100000000000000000000000000013880020000000003
+  base58 transaction: 7F4eCdp2uErMrDnuwhGjt24BjSy29pwH6gv3VFv8udmAqRgU5qoMPFSvu8ZybW5Kcpfcq29KbPEMvopyXthMf3PTd5EyNJR4oEHoeZAjJDsSrEedQw51hP729UjaLotdjCEVdK9X8AzzdfF9u2M1Q7giKhmaL7SRSjB7vyJTAKU7VUnpkqwy1vEkkXEYFwRX3H7mUoJm2jDiLaHAK9pxJKrsRvPWEGTNjjXi8KcM6Qab5uSkJbRmZD9LQPXrnNL9z2qbauLPfaBkVzD8mHdqxnZBxNLq95jamYXX1KNEsbXqiXnMUiH2dnLgSXp3S2ARTJ2C5AUbtV1PcwG4j2mxbMHpbsdbAyG1nU7oAzNYMfqXE72TGfNJS59SAhZrYQHvU1Apt495UHw3dw7e3nF6UdmWdS9XLYGbuX8XiZkf82Y2

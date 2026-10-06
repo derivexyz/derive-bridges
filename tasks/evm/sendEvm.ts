@@ -47,17 +47,17 @@ export async function sendEvm(
     if (oftAddress) {
         wrapperAddress = oftAddress
     } else {
-        // Use the token name to find the deployment contract (e.g., JITOSOL_DeriveOFTReceiver)
-        const contractName = `${token}_DeriveOFTReceiver`
-        try {
-            const deployment = await srcEidHre.deployments.get(contractName)
-            wrapperAddress = deployment.address
-        } catch (error) {
-            throw new Error(`No deployment found for contract ${contractName} on EID ${srcEid}`)
+        // The hub deployment is named after the token; a home chain holds `<token>_Adapter`.
+        const candidates = [token, `${token}_Adapter`]
+        const deployments = await Promise.all(candidates.map((name) => srcEidHre.deployments.getOrNull(name)))
+        const deployment = deployments.find((d) => d != null)
+        if (deployment == null) {
+            throw new Error(`No deployment found for ${candidates.join(' or ')} on EID ${srcEid}`)
         }
+        wrapperAddress = deployment.address
     }
     // 2️⃣ load OFT ABI
-    const oftArtifact = await srcEidHre.artifacts.readArtifact('OFT')
+    const oftArtifact = await srcEidHre.artifacts.readArtifact('IOFT')
     const oft = await srcEidHre.ethers.getContractAt(oftArtifact.abi, wrapperAddress, signer)
     // 3️⃣ fetch the underlying ERC-20
     const underlying = await oft.token()
